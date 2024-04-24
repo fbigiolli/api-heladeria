@@ -1,14 +1,15 @@
 from fastapi import FastAPI
+from Models import Pedido, MedioDePago, Pote
 
 app = FastAPI()
 
 
 @app.get("/gustos")
-async def getGustos():
+async def getGustos(tipoDeGusto: str | None = None):
     return {"message": "Hello World"}
 
 @app.post("/pedidos")
-async def postPedido():
+async def postPedido(pedido: Pedido):
     pass
 
 @app.get("/pedidos/{idPedido}")
@@ -16,11 +17,11 @@ async def getPedidoById(idPedido):
     pass
 
 @app.put("/pedidos/{idPedido}")
-async def modificarPedido(idPedido):
+async def modificarPedido(idPedido, pedido: Pedido):
     pass
 
 @app.post("/pedidos/{idPedido}/pagar")
-async def iniciarProcesoDePagoEnPedido(idPedido):
+async def iniciarProcesoDePagoEnPedido(idPedido, medioDePago: MedioDePago):
     pass
 
 @app.get("/pedidos/{idPedido}/intentos-de-pago/{idIntentoDePago}")
@@ -32,7 +33,7 @@ async def getPotesDelPedido(idPedido):
     pass
 
 @app.post("/pedidos/{idPedido}/potes")
-async def agregarPoteAlPedido(idPedido):
+async def agregarPoteAlPedido(idPedido, pote: Pote):
     pass
 
 @app.post("/pedidos/{idPedido}/potes/{idPote}")
