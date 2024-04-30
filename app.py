@@ -1,5 +1,7 @@
 from fastapi import FastAPI
-from Models import Pedido, MedioDePago, Pote
+from Models.Pedido import Pedido
+from Models.MedioDePago import MedioDePago
+from Models.Pote import Pote
 
 app = FastAPI()
 

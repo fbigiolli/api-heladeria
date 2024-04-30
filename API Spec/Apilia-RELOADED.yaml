@@ -1,0 +1,746 @@
+openapi: 3.0.0
+info:
+  description: |
+    API de la Heladería Via Apilia. A través de esta API se pueden consultar
+    los gustos de helado y realizar pedidos.
+  version: "1.0.0"
+  title: Heladería Via Apilia
+  contact:
+    email: devs@heladeria-apilia.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: 'https://api.heladeria-apilia.com'
+paths:
+  /repartidores:
+    get:
+      description: Listar los repartidores de la heladeria
+      parameters: 
+        - $ref: '#/components/parameters/edadRepartidor'
+      responses:
+        '200':
+          description: Estos son los repartidores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Repartidor'
+        '400':
+          description: Hubo un error de validacion en el parametro edad
+          
+    post:
+      description: Crea un nuevo repartidor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: nombre del repartidor
+                  example: Miguel
+                apellido:
+                  type: string
+                  description: apellido del repartidor
+                  example: Merentiel
+                cuil:
+                  type: integer
+                  description: CUIL del repartidor
+                  example: 20429577635
+                edad:
+                  type: integer
+                  description: edad del repartidor
+                  example: 22
+              required: [nombre, apellido, cuil, edad]
+      responses:
+        '201':
+          description: El repartidor ha sido agregado a la heladeria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repartidor'
+        '400':
+          description: Hubo un error de validacion con alguno de los datos.
+          
+  /repartidores/{idRepartidor}:
+    get:
+      description: Listar los repartidores de la heladeria
+      parameters: 
+        - $ref: '#/components/parameters/repartidorID'
+      responses:
+          '200':
+            description: Estos son los datos del repartidor.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Repartidor'
+          '404':
+            description: No se conoce un repartidor con tal id.
+    
+    delete:
+      description: Elimina el repartidor asociado a esta ID
+      parameters:
+        - $ref: '#/components/parameters/repartidorID'
+      responses:
+        '204':
+          description: El repartidor fue eliminado
+        '404':
+          description: No se conoce un repartidor con tal id
+          
+    put:
+      description: Modifica un repartidor existente
+      parameters:
+        - $ref: '#/components/parameters/repartidorID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                  description: nombre del repartidor
+                  example: Miguel
+                apellido:
+                  type: string
+                  description: apellido del repartidor
+                  example: Merentiel
+                cuil:
+                  type: integer
+                  description: CUIL del repartidor
+                  example: 20429577635
+                edad:
+                  type: integer
+                  description: edad del repartidor
+                  example: 22
+              required: [nombre, apellido, cuil, edad]
+      responses:
+        '200':
+          description: El repartidor ha sido modificado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repartidor'
+        '400':
+          description: Hubo un error de validacion con alguno de los datos.
+        '404':
+          description: No existe un repartidor asociado a dicha ID.
+          
+  /repartidores/{repartidorID}/vehiculos:
+    get:
+      description: Listar los vehiculos de un repartidor de la heladeria
+      parameters:
+        - $ref: '#/components/parameters/repartidorID'
+      responses:
+        '200':
+          description: Estos son los vehiculos del repartidor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf: 
+                    - $ref: '#/components/schemas/Auto'
+                    - $ref: '#/components/schemas/Bicicleta'
+                    - $ref: '#/components/schemas/Moto'
+        '404':
+          description: No existe un repartidor asociado a la ID.
+          
+    post:
+      description: Crea un nuevo vehiculo asociado al repartidor
+      parameters:
+        - $ref: '#/components/parameters/repartidorID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tipoDeVehiculo:
+                  type: string
+                  description: El tipo de vehiculo
+                  example: Auto
+                patente:
+                  type: string
+                  description: Patente del vehiculo, required si es auto/moto
+                  example: AE865BD
+                rodado:
+                  type: integer
+                  description: Rodado del vehiculo, required si es bicicleta
+                  example: 27
+              required: [tipoDeVehiculo]
+              
+      responses:
+        '201':
+          description: El vehiculo ha sido creado y asociado al repartidor correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehiculo'
+        '400':
+          description: Hubo un error de validacion con alguno de los datos.
+        '404':
+          description: No existe un repartidor asociado a la ID.
+          
+  /repartidores/{repartidorID}/vehiculos/{vehiculoID}:
+    put:
+      description: Modifica un vehiculo existente asociado al repartidor
+      parameters:
+        - $ref: '#/components/parameters/repartidorID'
+        - $ref: '#/components/parameters/vehiculoID'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tipoDeVehiculo:
+                  type: string
+                  description: El tipo de vehiculo
+                  example: Auto
+                patente:
+                  type: string
+                  description: Patente del vehiculo, required si es auto/moto
+                  example: AE865BD
+                rodado:
+                  type: integer
+                  description: Rodado del vehiculo, required si es bicicleta
+                  example: 27
+              required: [tipoDeVehiculo]
+              
+      responses:
+        '201':
+          description: El vehiculo ha sido modificado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehiculo'
+        '400':
+          description: Hubo un error de validacion con alguno de los datos.
+        '404':
+          description: No existe un repartidor y/o vehiculo asociado a la ID.
+
+  /pedidos/{pedidoId}/repartidor:
+    get: 
+      description: Obtener la info del repartidor asociado al pedido
+      parameters:
+        - $ref: '#/components/parameters/pedidoId'
+      responses:
+        '200':
+          description: El repartidor asociado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repartidor'
+        '404':
+          description: No se conoce un pedido con tal id
+          
+    delete:
+      description: Quitar el repartidor asociado del pedido
+      parameters:
+      - $ref: '#/components/parameters/pedidoId'
+      responses:
+        '204':
+          description: El repartidor fue quitado del pedido
+        '404':
+          description: No se conoce un pedido con tal id
+          
+    put:
+      description: Cambiar el repartidor asociado al pedido
+      parameters:
+      - $ref: '#/components/parameters/pedidoId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id_repartidor:
+                  type: string
+                  description: ID del repartidor que se quiere asignar al pedido
+                  example: MM82731674
+              required: [id_repartidor]
+                
+      responses:
+        '200':
+          description: El pedido ha sido actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '400':
+          description: Hubo un error al validar los datos del repartidor
+        '404':
+          description: No se conoce un pedido con tal id
+
+  /gustos:
+    get:
+      description: Listar los gustos de helado
+      parameters:
+      - in: query
+        name: tipo
+        required: false
+        schema:
+          $ref: '#/components/schemas/TipoDeGusto'
+      responses:
+        '200':
+          description: Estos son los gustos de helado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Gusto'
+  /gustos/{gustoId}:
+    get:
+      description: Ver un gusto particular
+      parameters:
+      - $ref: '#/components/parameters/gustoId'
+      responses:
+        '200':
+          description: El gusto seleccionado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gusto'
+        '404':
+          description: No se conoce un gusto con tal id
+  /pedidos:
+    post:
+      description: Crear un nuevo pedido a la dirección indicada
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                direccion_entrega:
+                  type: string
+                  description: dirección en la que se ha de entregar este pedido
+              required: [direccion_entrega]
+      responses:
+        '201':
+          description: El pedido ha sido creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+  /pedidos/{pedidoId}:
+    get:
+      description: Ver un pedido particular
+      parameters:
+      - $ref: '#/components/parameters/pedidoId'
+      responses:
+        '200':
+          description: El pedido ha sido hallado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '404':
+          description: No se conoce un pedido con tal id
+    put:
+      description: Cambiar los datos de un pedido particular
+      parameters:
+      - $ref: '#/components/parameters/pedidoId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                direccion_entrega:
+                  type: string
+                  description: dirección en la que se ha de entregar este pedido
+              required: [direccion_entrega]
+      responses:
+        '200':
+          description: El pedido ha sido actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        '404':
+          description: No se conoce un pedido con tal id
+  /pedidos/{pedidoId}/potes:
+    get:
+      description: Lista los potes que componen un pedido
+      parameters:
+      - $ref: '#/components/parameters/pedidoId'
+      responses:
+        '200':
+          description: Los potes del pedido
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Pote'
+        '404':
+          description: No se conoce un pedido con tal id
+    post:
+      description: Agrega un pote a un pedido
+      parameters:
+      - $ref: '#/components/parameters/pedidoId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                peso:
+                  $ref: '#/components/schemas/PesoDePote'
+                gustos:
+                  type: array
+                  items:
+                    type: string
+                  description: los gustos de helado en este pote
+                  example: [ddl, pist]
+              required: [peso, gustos]
+      responses:
+        '201':
+          description: El pote fue agregado al pedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pote'
+        '404':
+          description: No se conoce un pedido con tal id
+  /pedidos/{pedidoId}/potes/{poteId}:
+    delete:
+      description: quitar un pote de un pedido
+      parameters:
+      - $ref: '#/components/parameters/pedidoId'
+      - $ref: '#/components/parameters/poteId'
+      responses:
+        '204':
+          description: El pote fue quitado del pedido
+        '404':
+          description: No se conoce un pedido y/o pote con tal id
+  /pedidos/{pedidoId}/pagar:
+    post:
+      description: Inicia el pago del pedido
+      parameters:
+      - $ref: '#/components/parameters/pedidoId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatosDePago'
+      responses:
+        '202':
+          description: Los datos de pago han sido recibidos y serán procesados
+        '404':
+          description: No se conoce un pedido con tal id
+  /pedidos/{pedidoId}/pago:
+    get:
+      description: Ver el estado del pago de un pedido particular
+      parameters:
+      - $ref: '#/components/parameters/pedidoId'
+      responses:
+        '200':
+          description: Este es el estado del pago del pedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pago'
+        '404':
+          description: No se conoce un pedido con tal id
+
+components:
+  parameters:
+    edadRepartidor:
+      in: query
+      name: edad
+      required: false
+      schema: 
+        type: integer
+    repartidorID:
+      in: path
+      name: repartidorID
+      required: true
+      schema: 
+        type: string
+    vehiculoID:
+      in: path
+      name: vehiculoID
+      required: true
+      schema:
+        type: string
+    gustoId:
+      name: gustoId
+      in: path
+      description: id del gusto
+      required: true
+      schema:
+        type: string
+    pedidoId:
+      name: pedidoId
+      in: path
+      description: id del pedido
+      required: true
+      schema:
+        type: integer
+    poteId:
+      name: poteId
+      in: path
+      description: id del pote
+      required: true
+      schema:
+        type: integer
+  schemas:
+    TipoDeGusto:
+      description: categoría de gustos de helado
+      type: string
+      enum:
+        - chocolates
+        - dulce de leches
+        - cremas
+        - frutas
+      example: dulce de leches
+  
+    Repartidor:
+      description: un repartidor de la heladeria
+      type: object
+      properties:
+        id:
+          type: string
+          description: Iniciales + un numero que hace el ID unico para cada repartidor
+          example: MM82731674
+        nombre:
+          type: string
+          description: nombre del repartidor
+          example: Miguel 
+        apellido:
+          type: string
+          description: apellido del repartidor
+          example: Merentiel
+        cuil:
+          type: integer
+          description: cuil del repartidor
+          example: 20429577635
+        edad:
+          type: integer
+          description: edad del repartidor
+          example: 21
+      required: [id, nombre]
+      
+    Vehiculo:
+      description: Representa un vehiculo de un repartidor
+      type: object
+      discriminator:
+        propertyName: tipoDeVehiculo
+      properties:
+        tipoDeVehiculo:
+          type: string
+          description: representa el tipo de vehiculo
+          example: Auto
+        idVehiculo:
+          type: string
+          description: id asociada al vehiculo
+          example: A312786DCA223
+      required: [tipoDeVehiculo]
+      
+    Auto:
+      description: Representa un auto
+      allOf:
+      - $ref: '#/components/schemas/Vehiculo'
+      - type: object
+        properties:
+          patente:
+            type: string
+            description: la patente correspondiente al auto
+            example: AE865BD
+        required: [patente]
+        
+    Moto:
+      description: Representa una moto
+      allOf:
+      - $ref: '#/components/schemas/Vehiculo'
+      - type: object
+        properties:
+          patente:
+            type: string
+            description: la patente correspondiente al auto
+            example: A123BCD
+        required: [patente]
+        
+    Bicicleta:
+      description: Representa una bicicleta
+      allOf:
+      - $ref: '#/components/schemas/Vehiculo'
+      - type: object
+        properties:
+          rodado:
+            type: integer
+            description: representa el rodado de la bicicleta
+            example: 27
+        required: [rodado]
+      
+    Gusto:
+      description: un gusto de helado
+      type: object
+      properties:
+        id:
+          type: string
+          description: nombre corto que identifica este gusto
+          example: ddl
+        nombre:
+          type: string
+          description: nombre legible por humanos para este gusto
+          example: Dulce de leche
+        tipo:
+          $ref: '#/components/schemas/TipoDeGusto'
+      required: [id, nombre, tipo]
+    Pedido:
+      description: un pedido de helados
+      type: object
+      properties:
+        id:
+          type: integer
+          description: identificador de este pedido
+          example: 22
+        direccion_entrega:
+          type: string
+          description: dirección en la que se ha de entregar este pedido
+          example: Lavalleja 244 4C, CABA
+        _links:
+          type: object
+          description: hypermedia links de un pedido
+          properties:
+            potes: 
+              $ref: '#/components/schemas/Link'
+            pagar: 
+              $ref: '#/components/schemas/Link'
+            pago: 
+              $ref: '#/components/schemas/Link'
+        repartidor:
+          $ref: '#/components/schemas/Repartidor'
+      required: [id, direccion_entrega, repartidor]
+    PesoDePote:
+      description: peso de un pote de helado en gramos
+      type: string
+      enum:
+        - "1000"
+        - "500"
+        - "250"
+      example: "500"
+    Pote:
+      description: un pote de helado dentro de un pedido
+      type: object
+      properties:
+        id:
+          type: integer
+          description: identificador de este pote dentro del pedido
+          example: 1
+        peso:
+          $ref: '#/components/schemas/PesoDePote'
+        gustos:
+          type: array
+          items:
+            type: object
+            properties:
+              id: 
+                type: string
+                description: el id del gusto de helado en este pote
+                example: ddl
+              _links:
+                type: object
+                description: hypermedia links de un gusto dentro de un pote
+                properties:
+                  self:
+                    $ref: '#/components/schemas/Link'
+          description: los gustos de helado en este pote
+        _links:
+          type: object
+          description: hypermedia links de un pote
+          properties:
+            pedido:
+              $ref: '#/components/schemas/Link'
+            borrar: 
+              $ref: '#/components/schemas/Link'
+      required: [id, peso, gustos]
+    DatosDePago:
+      description: los datos necesarios para iniciar el pago de un pedido
+      type: object
+      discriminator:
+        propertyName: tipoDePago
+      properties:
+        tipoDePago:
+          type: string
+          description: se usa para determinar el tipo de pago a usar
+      required: [tipoDePago]
+    DatosDePagoBilleteraVirtual:
+      description: datos de pago cuando se usa una billetera virtual
+      allOf:
+      - $ref: '#/components/schemas/DatosDePago'
+      - type: object
+        properties:
+          alias:
+            type: string
+            description: nombre de usuario o alias de la billetera a utilizar
+            example: mi.cuenta.billetera
+        required: [alias]
+    DatosDePagoTarjeta:
+      description: datos de pago cuando se usa tarjeta de crédito
+      allOf:
+      - $ref: '#/components/schemas/DatosDePago'
+      - type: object
+        properties:
+          numerosTarjeta:
+            type: string
+            description: los 15 o 16 números de la tarjeta de crédito
+            example: "1234567812345678"
+          vencimientoTarjetaMes:
+            type: number
+            format: int8
+            minimum: 1
+            maximum: 6
+            description: el mes del vencimiento de la tarjeta de crédito
+            example: 4
+          vencimientoTarjetaAnio:
+            type: number
+            format: int8
+            minimum: 0
+            maximum: 99
+            description: el año de vencimiento de la tarjeta expresado en dos dígitos
+            example: 24
+        required: [numerosTarjeta, vencimientoTarjetaMes, vencimientoTarjetaAnio]
+    Pago:
+      description: estado del pago de un pedido
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - pendiente de pago
+            - pago en proceso
+            - pago aceptado
+            - pago fallado
+          example: pago aceptado
+      required: [status]
+    Link:
+      description: un link usado para hypermedia
+      type: object
+      properties:
+        href:
+          type: string
+          format: uri
+          description: la URI del link
+          example: "http://foo.com/bar"
+        verb:
+          type: string
+          enum:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+          example: GET
+          description: el verbo a usar en el link
+          
+            
+  

@@ -1,0 +1,31 @@
+Repartidores
+    [x] Listar
+        [x] Filtrado por edad
+    [x] Agregar
+    [x] Borrar
+    [x] Modificar
+    [x] Consultar datos de un repartidor en particular
+
+    Schema: 
+        [x] ID
+        [x] Nombre
+        [x] Apellido
+        [x] CUIL
+        [x] Edad
+
+Vehiculos Repartidores
+    [x] Listar (preguntar x oneOf: en get)
+    [x] Agregar (preguntar x required en el request body)
+    [x] Modificar
+    [] (?) Borrar
+
+    Schema:
+        [x] Tipo
+        [x] Patente (auto y moto) obligatorio
+        [x] Rodado (bici) obligatorio (incluir rodado en vehiculo y hacerlo obligatorio solo aca? o ponerlo solo en bici?)
+
+
+Pedidos
+    [x] Modificar post al crear pedido para que haya repartidor
+    [x] Actualizar repartidor asignado (preguntar si deberia solo pasar ID, no se si hace falta pasar TODO el object repartidor)
+    [x] Borrar repartidor asignado
