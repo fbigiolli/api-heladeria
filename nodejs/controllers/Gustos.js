@@ -18,7 +18,8 @@ module.exports.gustosGustoIdGET = function gustosGustoIdGET (req, res, next, gus
     .then(function (response) {
       utils.writeJson(res, response);
     })
-    .catch(function (response) {
-      utils.writeJson(res, response);
+    .catch(function () {
+      res.status(404).send('No se conoce un gusto con tal id');
     });
 };
+

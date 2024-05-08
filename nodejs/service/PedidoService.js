@@ -1,5 +1,6 @@
 'use strict';
 
+const {client} = require('../db/dbConnection');
 
 /**
  * Crear un nuevo pedido a la dirección indicada
@@ -49,35 +50,25 @@ exports.pedidosPOST = function(body) {
  * returns Pedido
  **/
 exports.pedidosPedidoIdGET = function(pedidoId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "repartidor" : {
-    "_links" : {
-      "vehiculos" : {
-        "verb" : "GET",
-        "href" : "http://foo.com/bar"
+  const database = client.db('Via-Apilia');
+  const collection = database.collection('Pedidos');
+
+  const idPedido = { id: pedidoId }; 
+  const options = { projection:{ _id: 0 } };
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const pedido = await collection.findOne(idPedido, options);
+      
+      if (pedido) {
+        resolve(pedido);
+      } else {
+        const error = new Error('Pedido no encontrado');
+        reject(error);
       }
-    },
-    "apellido" : "Merentiel",
-    "id" : "MM82731674",
-    "cuil" : 20429577635,
-    "nombre" : "Miguel",
-    "edad" : 21
-  },
-  "_links" : {
-    "potes" : {
-      "verb" : "GET",
-      "href" : "http://foo.com/bar"
-    }
-  },
-  "id" : 22,
-  "direccion_entrega" : "Lavalleja 244 4C, CABA"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+    } catch (error) {
+      console.error("Error fetching pedidos:", error);
+      reject(error);
     }
   });
 }

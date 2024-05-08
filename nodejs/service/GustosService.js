@@ -1,6 +1,6 @@
 'use strict';
 
-var db = require('../service/GustosService');
+
 const {client} = require('../db/dbConnection');
 
 
@@ -16,10 +16,11 @@ exports.gustosGET = function(tipo) {
   
   // si no hay query paso filtro vacio
   const query = tipo ? { tipo: tipo } : {};
-
+  const projection = { _id: 0} // saco la id de la db
+  
   return new Promise(async function(resolve, reject) {
     try {
-      const gustos = await collection.find(query).toArray();
+      const gustos = await collection.find(query).project(projection).toArray();
       resolve(gustos);
     } catch (error) {
       console.error("Error fetching gustos:", error);
@@ -36,18 +37,27 @@ exports.gustosGET = function(tipo) {
  * returns Gusto
  **/
 exports.gustosGustoIdGET = function(gustoId) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "tipo" : "dulce de leches",
-  "id" : "ddl",
-  "nombre" : "Dulce de leche"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+  const database = client.db('Via-Apilia');
+  const collection = database.collection('Gustos');
+
+  const idGusto = { id: gustoId }; 
+  const options = { projection: { _id:0 }}; // saco la id de la db
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      const gusto = await collection.findOne(idGusto,options);
+      
+      if (gusto) {
+        resolve(gusto);
+      } else {
+        const error = new Error('Gusto no encontrado');
+        reject(error);
+      }
+    } catch (error) {
+      console.error("Error fetching gustos:", error);
+      reject(error);
     }
   });
 }
+
 

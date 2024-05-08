@@ -18,8 +18,8 @@ module.exports.pedidosPedidoIdGET = function pedidosPedidoIdGET (req, res, next,
     .then(function (response) {
       utils.writeJson(res, response);
     })
-    .catch(function (response) {
-      utils.writeJson(res, response);
+    .catch(function () {
+      res.status(404).send('No se conoce un pedido con tal id');
     });
 };
 
