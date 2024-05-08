@@ -13,8 +13,11 @@ info:
 servers:
   - url: 'https://api.heladeria-apilia.com'
 paths:
+
   /repartidores:
     get:
+      tags: 
+        - Repartidores
       description: Listar los repartidores de la heladeria
       parameters: 
         - $ref: '#/components/parameters/edadRepartidor'
@@ -31,6 +34,8 @@ paths:
           description: Hubo un error de validacion en el parametro edad
           
     post:
+      tags: 
+        - Repartidores
       description: Crea un nuevo repartidor
       requestBody:
         content:
@@ -65,9 +70,11 @@ paths:
         '400':
           description: Hubo un error de validacion con alguno de los datos.
           
-  /repartidores/{idRepartidor}:
+  /repartidores/{repartidorID}:
     get:
-      description: Listar los repartidores de la heladeria
+      tags: 
+        - Repartidores
+      description: Obtiene los datos de un repartidor de la heladeria
       parameters: 
         - $ref: '#/components/parameters/repartidorID'
       responses:
@@ -81,6 +88,8 @@ paths:
             description: No se conoce un repartidor con tal id.
     
     delete:
+      tags: 
+        - Repartidores
       description: Elimina el repartidor asociado a esta ID
       parameters:
         - $ref: '#/components/parameters/repartidorID'
@@ -91,7 +100,9 @@ paths:
           description: No se conoce un repartidor con tal id
           
     put:
-      description: Modifica un repartidor existente
+      tags: 
+        - Repartidores
+      description: Modifica los datos de un repartidor existente
       parameters:
         - $ref: '#/components/parameters/repartidorID'
       requestBody:
@@ -131,6 +142,8 @@ paths:
           
   /repartidores/{repartidorID}/vehiculos:
     get:
+      tags: 
+        - Vehiculos de un repartidor
       description: Listar los vehiculos de un repartidor de la heladeria
       parameters:
         - $ref: '#/components/parameters/repartidorID'
@@ -142,7 +155,7 @@ paths:
               schema:
                 type: array
                 items:
-                  oneOf: 
+                  anyOf: 
                     - $ref: '#/components/schemas/Auto'
                     - $ref: '#/components/schemas/Bicicleta'
                     - $ref: '#/components/schemas/Moto'
@@ -150,6 +163,8 @@ paths:
           description: No existe un repartidor asociado a la ID.
           
     post:
+      tags: 
+        - Vehiculos de un repartidor
       description: Crea un nuevo vehiculo asociado al repartidor
       parameters:
         - $ref: '#/components/parameters/repartidorID'
@@ -157,22 +172,10 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                tipoDeVehiculo:
-                  type: string
-                  description: El tipo de vehiculo
-                  example: Auto
-                patente:
-                  type: string
-                  description: Patente del vehiculo, required si es auto/moto
-                  example: AE865BD
-                rodado:
-                  type: integer
-                  description: Rodado del vehiculo, required si es bicicleta
-                  example: 27
-              required: [tipoDeVehiculo]
-              
+              oneOf:
+                  - $ref: '#/components/schemas/Auto'
+                  - $ref: '#/components/schemas/Bicicleta'
+                  - $ref: '#/components/schemas/Moto'
       responses:
         '201':
           description: El vehiculo ha sido creado y asociado al repartidor correctamente
@@ -187,6 +190,8 @@ paths:
           
   /repartidores/{repartidorID}/vehiculos/{vehiculoID}:
     put:
+      tags: 
+        - Vehiculos de un repartidor
       description: Modifica un vehiculo existente asociado al repartidor
       parameters:
         - $ref: '#/components/parameters/repartidorID'
@@ -195,21 +200,10 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                tipoDeVehiculo:
-                  type: string
-                  description: El tipo de vehiculo
-                  example: Auto
-                patente:
-                  type: string
-                  description: Patente del vehiculo, required si es auto/moto
-                  example: AE865BD
-                rodado:
-                  type: integer
-                  description: Rodado del vehiculo, required si es bicicleta
-                  example: 27
-              required: [tipoDeVehiculo]
+              oneOf:
+                  - $ref: '#/components/schemas/Auto'
+                  - $ref: '#/components/schemas/Bicicleta'
+                  - $ref: '#/components/schemas/Moto'
               
       responses:
         '201':
@@ -224,21 +218,10 @@ paths:
           description: No existe un repartidor y/o vehiculo asociado a la ID.
 
   /pedidos/{pedidoId}/repartidor:
-    get: 
-      description: Obtener la info del repartidor asociado al pedido
-      parameters:
-        - $ref: '#/components/parameters/pedidoId'
-      responses:
-        '200':
-          description: El repartidor asociado
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Repartidor'
-        '404':
-          description: No se conoce un pedido con tal id
           
     delete:
+      tags: 
+        - Pedido
       description: Quitar el repartidor asociado del pedido
       parameters:
       - $ref: '#/components/parameters/pedidoId'
@@ -249,6 +232,8 @@ paths:
           description: No se conoce un pedido con tal id
           
     put:
+      tags: 
+        - Pedido
       description: Cambiar el repartidor asociado al pedido
       parameters:
       - $ref: '#/components/parameters/pedidoId'
@@ -278,6 +263,8 @@ paths:
 
   /gustos:
     get:
+      tags: 
+        - Gustos
       description: Listar los gustos de helado
       parameters:
       - in: query
@@ -296,6 +283,8 @@ paths:
                   $ref: '#/components/schemas/Gusto'
   /gustos/{gustoId}:
     get:
+      tags: 
+        - Gustos
       description: Ver un gusto particular
       parameters:
       - $ref: '#/components/parameters/gustoId'
@@ -310,6 +299,8 @@ paths:
           description: No se conoce un gusto con tal id
   /pedidos:
     post:
+      tags: 
+        - Pedido
       description: Crear un nuevo pedido a la dirección indicada
       requestBody:
         content:
@@ -330,6 +321,8 @@ paths:
                 $ref: '#/components/schemas/Pedido'
   /pedidos/{pedidoId}:
     get:
+      tags: 
+        - Pedido
       description: Ver un pedido particular
       parameters:
       - $ref: '#/components/parameters/pedidoId'
@@ -343,6 +336,8 @@ paths:
         '404':
           description: No se conoce un pedido con tal id
     put:
+      tags: 
+        - Pedido
       description: Cambiar los datos de un pedido particular
       parameters:
       - $ref: '#/components/parameters/pedidoId'
@@ -367,6 +362,8 @@ paths:
           description: No se conoce un pedido con tal id
   /pedidos/{pedidoId}/potes:
     get:
+      tags: 
+        - Potes de un pedido
       description: Lista los potes que componen un pedido
       parameters:
       - $ref: '#/components/parameters/pedidoId'
@@ -382,6 +379,8 @@ paths:
         '404':
           description: No se conoce un pedido con tal id
     post:
+      tags: 
+        - Potes de un pedido
       description: Agrega un pote a un pedido
       parameters:
       - $ref: '#/components/parameters/pedidoId'
@@ -411,6 +410,8 @@ paths:
           description: No se conoce un pedido con tal id
   /pedidos/{pedidoId}/potes/{poteId}:
     delete:
+      tags: 
+        - Potes de un pedido
       description: quitar un pote de un pedido
       parameters:
       - $ref: '#/components/parameters/pedidoId'
@@ -422,6 +423,8 @@ paths:
           description: No se conoce un pedido y/o pote con tal id
   /pedidos/{pedidoId}/pagar:
     post:
+      tags: 
+        - Pago
       description: Inicia el pago del pedido
       parameters:
       - $ref: '#/components/parameters/pedidoId'
@@ -437,6 +440,8 @@ paths:
           description: No se conoce un pedido con tal id
   /pedidos/{pedidoId}/pago:
     get:
+      tags: 
+        - Pago
       description: Ver el estado del pago de un pedido particular
       parameters:
       - $ref: '#/components/parameters/pedidoId'
@@ -508,7 +513,7 @@ components:
       properties:
         id:
           type: string
-          description: Iniciales + un numero que hace el ID unico para cada repartidor
+          description: GUID asociada al repartidor
           example: MM82731674
         nombre:
           type: string
@@ -526,7 +531,17 @@ components:
           type: integer
           description: edad del repartidor
           example: 21
-      required: [id, nombre]
+        _links:
+          type: object
+          description: hypermedia links de un repartidor
+          properties:
+            vehiculos: 
+              $ref: '#/components/schemas/Link'
+            modificar_datos: 
+              $ref: '#/components/schemas/Link'
+            eliminar_repartidor: 
+              $ref: '#/components/schemas/Link'
+      required: [id, nombre, apellido, cuil, edad]
       
     Vehiculo:
       description: Representa un vehiculo de un repartidor
@@ -540,8 +555,14 @@ components:
           example: Auto
         idVehiculo:
           type: string
-          description: id asociada al vehiculo
+          description: GUID asociada al vehiculo
           example: A312786DCA223
+        _links:
+          type: object
+          description: hypermedia links de un vehiculo
+          properties:
+            modificar_vehiculo: 
+              $ref: '#/components/schemas/Link'
       required: [tipoDeVehiculo]
       
     Auto:

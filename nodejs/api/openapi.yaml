@@ -1,0 +1,1088 @@
+openapi: 3.0.0
+info:
+  title: Heladería Via Apilia
+  description: |
+    API de la Heladería Via Apilia. A través de esta API se pueden consultar
+    los gustos de helado y realizar pedidos.
+  contact:
+    email: devs@heladeria-apilia.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://api.heladeria-apilia.com
+paths:
+  /repartidores:
+    get:
+      tags:
+      - Repartidores
+      description: Listar los repartidores de la heladeria
+      operationId: repartidoresGET
+      parameters:
+      - name: edad
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Estos son los repartidores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Repartidor'
+                x-content-type: application/json
+        "400":
+          description: Hubo un error de validacion en el parametro edad
+      x-swagger-router-controller: Repartidores
+    post:
+      tags:
+      - Repartidores
+      description: Crea un nuevo repartidor
+      operationId: repartidoresPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/repartidores_body'
+      responses:
+        "201":
+          description: El repartidor ha sido agregado a la heladeria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repartidor'
+        "400":
+          description: Hubo un error de validacion con alguno de los datos.
+      x-swagger-router-controller: Repartidores
+  /repartidores/{repartidorID}:
+    get:
+      tags:
+      - Repartidores
+      description: Obtiene los datos de un repartidor de la heladeria
+      operationId: repartidoresRepartidorIDGET
+      parameters:
+      - name: repartidorID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Estos son los datos del repartidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repartidor'
+        "404":
+          description: No se conoce un repartidor con tal id.
+      x-swagger-router-controller: Repartidores
+    put:
+      tags:
+      - Repartidores
+      description: Modifica los datos de un repartidor existente
+      operationId: repartidoresRepartidorIDPUT
+      parameters:
+      - name: repartidorID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/repartidores_repartidorID_body'
+      responses:
+        "200":
+          description: El repartidor ha sido modificado correctamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repartidor'
+        "400":
+          description: Hubo un error de validacion con alguno de los datos.
+        "404":
+          description: No existe un repartidor asociado a dicha ID.
+      x-swagger-router-controller: Repartidores
+    delete:
+      tags:
+      - Repartidores
+      description: Elimina el repartidor asociado a esta ID
+      operationId: repartidoresRepartidorIDDELETE
+      parameters:
+      - name: repartidorID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "204":
+          description: El repartidor fue eliminado
+        "404":
+          description: No se conoce un repartidor con tal id
+      x-swagger-router-controller: Repartidores
+  /repartidores/{repartidorID}/vehiculos:
+    get:
+      tags:
+      - Vehiculos de un repartidor
+      description: Listar los vehiculos de un repartidor de la heladeria
+      operationId: repartidoresRepartidorIDVehiculosGET
+      parameters:
+      - name: repartidorID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Estos son los vehiculos del repartidor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                  - $ref: '#/components/schemas/Auto'
+                  - $ref: '#/components/schemas/Bicicleta'
+                  - $ref: '#/components/schemas/Moto'
+                x-content-type: application/json
+        "404":
+          description: No existe un repartidor asociado a la ID.
+      x-swagger-router-controller: VehiculosDeUnRepartidor
+    post:
+      tags:
+      - Vehiculos de un repartidor
+      description: Crea un nuevo vehiculo asociado al repartidor
+      operationId: repartidoresRepartidorIDVehiculosPOST
+      parameters:
+      - name: repartidorID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/repartidorID_vehiculos_body'
+      responses:
+        "201":
+          description: El vehiculo ha sido creado y asociado al repartidor correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehiculo'
+        "400":
+          description: Hubo un error de validacion con alguno de los datos.
+        "404":
+          description: No existe un repartidor asociado a la ID.
+      x-swagger-router-controller: VehiculosDeUnRepartidor
+  /repartidores/{repartidorID}/vehiculos/{vehiculoID}:
+    put:
+      tags:
+      - Vehiculos de un repartidor
+      description: Modifica un vehiculo existente asociado al repartidor
+      operationId: repartidoresRepartidorIDVehiculosVehiculoIDPUT
+      parameters:
+      - name: repartidorID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: vehiculoID
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/vehiculos_vehiculoID_body'
+      responses:
+        "201":
+          description: El vehiculo ha sido modificado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehiculo'
+        "400":
+          description: Hubo un error de validacion con alguno de los datos.
+        "404":
+          description: No existe un repartidor y/o vehiculo asociado a la ID.
+      x-swagger-router-controller: VehiculosDeUnRepartidor
+  /pedidos/{pedidoId}/repartidor:
+    put:
+      tags:
+      - Pedido
+      description: Cambiar el repartidor asociado al pedido
+      operationId: pedidosPedidoIdRepartidorPUT
+      parameters:
+      - name: pedidoId
+        in: path
+        description: id del pedido
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/pedidoId_repartidor_body'
+      responses:
+        "200":
+          description: El pedido ha sido actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        "400":
+          description: Hubo un error al validar los datos del repartidor
+        "404":
+          description: No se conoce un pedido con tal id
+      x-swagger-router-controller: Pedido
+    delete:
+      tags:
+      - Pedido
+      description: Quitar el repartidor asociado del pedido
+      operationId: pedidosPedidoIdRepartidorDELETE
+      parameters:
+      - name: pedidoId
+        in: path
+        description: id del pedido
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "204":
+          description: El repartidor fue quitado del pedido
+        "404":
+          description: No se conoce un pedido con tal id
+      x-swagger-router-controller: Pedido
+  /gustos:
+    get:
+      tags:
+      - Gustos
+      description: Listar los gustos de helado
+      operationId: gustosGET
+      parameters:
+      - name: tipo
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/TipoDeGusto'
+      responses:
+        "200":
+          description: Estos son los gustos de helado
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Gusto'
+                x-content-type: application/json
+      x-swagger-router-controller: Gustos
+  /gustos/{gustoId}:
+    get:
+      tags:
+      - Gustos
+      description: Ver un gusto particular
+      operationId: gustosGustoIdGET
+      parameters:
+      - name: gustoId
+        in: path
+        description: id del gusto
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: El gusto seleccionado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Gusto'
+        "404":
+          description: No se conoce un gusto con tal id
+      x-swagger-router-controller: Gustos
+  /pedidos:
+    post:
+      tags:
+      - Pedido
+      description: Crear un nuevo pedido a la dirección indicada
+      operationId: pedidosPOST
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/pedidos_body'
+      responses:
+        "201":
+          description: El pedido ha sido creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+      x-swagger-router-controller: Pedido
+  /pedidos/{pedidoId}:
+    get:
+      tags:
+      - Pedido
+      description: Ver un pedido particular
+      operationId: pedidosPedidoIdGET
+      parameters:
+      - name: pedidoId
+        in: path
+        description: id del pedido
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: El pedido ha sido hallado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        "404":
+          description: No se conoce un pedido con tal id
+      x-swagger-router-controller: Pedido
+    put:
+      tags:
+      - Pedido
+      description: Cambiar los datos de un pedido particular
+      operationId: pedidosPedidoIdPUT
+      parameters:
+      - name: pedidoId
+        in: path
+        description: id del pedido
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/pedidos_pedidoId_body'
+      responses:
+        "200":
+          description: El pedido ha sido actualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pedido'
+        "404":
+          description: No se conoce un pedido con tal id
+      x-swagger-router-controller: Pedido
+  /pedidos/{pedidoId}/potes:
+    get:
+      tags:
+      - Potes de un pedido
+      description: Lista los potes que componen un pedido
+      operationId: pedidosPedidoIdPotesGET
+      parameters:
+      - name: pedidoId
+        in: path
+        description: id del pedido
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Los potes del pedido
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pote'
+                x-content-type: application/json
+        "404":
+          description: No se conoce un pedido con tal id
+      x-swagger-router-controller: PotesDeUnPedido
+    post:
+      tags:
+      - Potes de un pedido
+      description: Agrega un pote a un pedido
+      operationId: pedidosPedidoIdPotesPOST
+      parameters:
+      - name: pedidoId
+        in: path
+        description: id del pedido
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/pedidoId_potes_body'
+      responses:
+        "201":
+          description: El pote fue agregado al pedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pote'
+        "404":
+          description: No se conoce un pedido con tal id
+      x-swagger-router-controller: PotesDeUnPedido
+  /pedidos/{pedidoId}/potes/{poteId}:
+    delete:
+      tags:
+      - Potes de un pedido
+      description: quitar un pote de un pedido
+      operationId: pedidosPedidoIdPotesPoteIdDELETE
+      parameters:
+      - name: pedidoId
+        in: path
+        description: id del pedido
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      - name: poteId
+        in: path
+        description: id del pote
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "204":
+          description: El pote fue quitado del pedido
+        "404":
+          description: No se conoce un pedido y/o pote con tal id
+      x-swagger-router-controller: PotesDeUnPedido
+  /pedidos/{pedidoId}/pagar:
+    post:
+      tags:
+      - Pago
+      description: Inicia el pago del pedido
+      operationId: pedidosPedidoIdPagarPOST
+      parameters:
+      - name: pedidoId
+        in: path
+        description: id del pedido
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatosDePago'
+      responses:
+        "202":
+          description: Los datos de pago han sido recibidos y serán procesados
+        "404":
+          description: No se conoce un pedido con tal id
+      x-swagger-router-controller: Pago
+  /pedidos/{pedidoId}/pago:
+    get:
+      tags:
+      - Pago
+      description: Ver el estado del pago de un pedido particular
+      operationId: pedidosPedidoIdPagoGET
+      parameters:
+      - name: pedidoId
+        in: path
+        description: id del pedido
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Este es el estado del pago del pedido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pago'
+        "404":
+          description: No se conoce un pedido con tal id
+      x-swagger-router-controller: Pago
+components:
+  schemas:
+    TipoDeGusto:
+      type: string
+      description: categoría de gustos de helado
+      example: dulce de leches
+      enum:
+      - chocolates
+      - dulce de leches
+      - cremas
+      - frutas
+    Repartidor:
+      required:
+      - apellido
+      - cuil
+      - edad
+      - id
+      - nombre
+      type: object
+      properties:
+        id:
+          type: string
+          description: GUID asociada al repartidor
+          example: MM82731674
+        nombre:
+          type: string
+          description: nombre del repartidor
+          example: Miguel
+        apellido:
+          type: string
+          description: apellido del repartidor
+          example: Merentiel
+        cuil:
+          type: integer
+          description: cuil del repartidor
+          example: 20429577635
+        edad:
+          type: integer
+          description: edad del repartidor
+          example: 21
+        _links:
+          $ref: '#/components/schemas/Repartidor__links'
+      description: un repartidor de la heladeria
+      example:
+        _links:
+          eliminar_repartidor: null
+          modificar_datos: null
+          vehiculos:
+            verb: GET
+            href: http://foo.com/bar
+        apellido: Merentiel
+        id: MM82731674
+        cuil: 20429577635
+        nombre: Miguel
+        edad: 21
+    Vehiculo:
+      required:
+      - tipoDeVehiculo
+      type: object
+      properties:
+        tipoDeVehiculo:
+          type: string
+          description: representa el tipo de vehiculo
+          example: Auto
+        idVehiculo:
+          type: string
+          description: GUID asociada al vehiculo
+          example: A312786DCA223
+        _links:
+          $ref: '#/components/schemas/Vehiculo__links'
+      description: Representa un vehiculo de un repartidor
+      example:
+        tipoDeVehiculo: Auto
+        idVehiculo: A312786DCA223
+        _links:
+          modificar_vehiculo:
+            verb: GET
+            href: http://foo.com/bar
+      discriminator:
+        propertyName: tipoDeVehiculo
+    Auto:
+      description: Representa un auto
+      allOf:
+      - $ref: '#/components/schemas/Vehiculo'
+      - required:
+        - patente
+        type: object
+        properties:
+          patente:
+            type: string
+            description: la patente correspondiente al auto
+            example: AE865BD
+    Moto:
+      description: Representa una moto
+      allOf:
+      - $ref: '#/components/schemas/Vehiculo'
+      - required:
+        - patente
+        type: object
+        properties:
+          patente:
+            type: string
+            description: la patente correspondiente al auto
+            example: A123BCD
+    Bicicleta:
+      description: Representa una bicicleta
+      allOf:
+      - $ref: '#/components/schemas/Vehiculo'
+      - required:
+        - rodado
+        type: object
+        properties:
+          rodado:
+            type: integer
+            description: representa el rodado de la bicicleta
+            example: 27
+    Gusto:
+      required:
+      - id
+      - nombre
+      - tipo
+      type: object
+      properties:
+        id:
+          type: string
+          description: nombre corto que identifica este gusto
+          example: ddl
+        nombre:
+          type: string
+          description: nombre legible por humanos para este gusto
+          example: Dulce de leche
+        tipo:
+          $ref: '#/components/schemas/TipoDeGusto'
+      description: un gusto de helado
+      example:
+        tipo: dulce de leches
+        id: ddl
+        nombre: Dulce de leche
+    Pedido:
+      required:
+      - direccion_entrega
+      - id
+      - repartidor
+      type: object
+      properties:
+        id:
+          type: integer
+          description: identificador de este pedido
+          example: 22
+        direccion_entrega:
+          type: string
+          description: dirección en la que se ha de entregar este pedido
+          example: "Lavalleja 244 4C, CABA"
+        _links:
+          $ref: '#/components/schemas/Pedido__links'
+        repartidor:
+          $ref: '#/components/schemas/Repartidor'
+      description: un pedido de helados
+      example:
+        repartidor:
+          _links:
+            eliminar_repartidor: null
+            modificar_datos: null
+            vehiculos:
+              verb: GET
+              href: http://foo.com/bar
+          apellido: Merentiel
+          id: MM82731674
+          cuil: 20429577635
+          nombre: Miguel
+          edad: 21
+        _links:
+          pagar: null
+          potes:
+            verb: GET
+            href: http://foo.com/bar
+          pago: null
+        id: 22
+        direccion_entrega: "Lavalleja 244 4C, CABA"
+    PesoDePote:
+      type: string
+      description: peso de un pote de helado en gramos
+      example: "500"
+      enum:
+      - "1000"
+      - "500"
+      - "250"
+    Pote:
+      required:
+      - gustos
+      - id
+      - peso
+      type: object
+      properties:
+        id:
+          type: integer
+          description: identificador de este pote dentro del pedido
+          example: 1
+        peso:
+          $ref: '#/components/schemas/PesoDePote'
+        gustos:
+          type: array
+          description: los gustos de helado en este pote
+          items:
+            $ref: '#/components/schemas/Pote_gustos'
+        _links:
+          $ref: '#/components/schemas/Pote__links_1'
+      description: un pote de helado dentro de un pedido
+      example:
+        peso: "500"
+        _links:
+          borrar: null
+          pedido: null
+        gustos:
+        - _links:
+            self:
+              verb: GET
+              href: http://foo.com/bar
+          id: ddl
+        - _links:
+            self:
+              verb: GET
+              href: http://foo.com/bar
+          id: ddl
+        id: 1
+    DatosDePago:
+      required:
+      - tipoDePago
+      type: object
+      properties:
+        tipoDePago:
+          type: string
+          description: se usa para determinar el tipo de pago a usar
+      description: los datos necesarios para iniciar el pago de un pedido
+      discriminator:
+        propertyName: tipoDePago
+    DatosDePagoBilleteraVirtual:
+      description: datos de pago cuando se usa una billetera virtual
+      allOf:
+      - $ref: '#/components/schemas/DatosDePago'
+      - required:
+        - alias
+        type: object
+        properties:
+          alias:
+            type: string
+            description: nombre de usuario o alias de la billetera a utilizar
+            example: mi.cuenta.billetera
+    DatosDePagoTarjeta:
+      description: datos de pago cuando se usa tarjeta de crédito
+      allOf:
+      - $ref: '#/components/schemas/DatosDePago'
+      - required:
+        - numerosTarjeta
+        - vencimientoTarjetaAnio
+        - vencimientoTarjetaMes
+        type: object
+        properties:
+          numerosTarjeta:
+            type: string
+            description: los 15 o 16 números de la tarjeta de crédito
+            example: "1234567812345678"
+          vencimientoTarjetaMes:
+            maximum: 6
+            minimum: 1
+            type: number
+            description: el mes del vencimiento de la tarjeta de crédito
+            format: int8
+            example: 4
+          vencimientoTarjetaAnio:
+            maximum: 99
+            minimum: 0
+            type: number
+            description: el año de vencimiento de la tarjeta expresado en dos dígitos
+            format: int8
+            example: 24
+    Pago:
+      required:
+      - status
+      type: object
+      properties:
+        status:
+          type: string
+          example: pago aceptado
+          enum:
+          - pendiente de pago
+          - pago en proceso
+          - pago aceptado
+          - pago fallado
+      description: estado del pago de un pedido
+      example:
+        status: pago aceptado
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+          description: la URI del link
+          format: uri
+          example: http://foo.com/bar
+        verb:
+          type: string
+          description: el verbo a usar en el link
+          example: GET
+          enum:
+          - GET
+          - POST
+          - PUT
+          - PATCH
+          - DELETE
+      description: un link usado para hypermedia
+      example:
+        verb: GET
+        href: http://foo.com/bar
+    repartidores_body:
+      required:
+      - apellido
+      - cuil
+      - edad
+      - nombre
+      type: object
+      properties:
+        nombre:
+          type: string
+          description: nombre del repartidor
+          example: Miguel
+        apellido:
+          type: string
+          description: apellido del repartidor
+          example: Merentiel
+        cuil:
+          type: integer
+          description: CUIL del repartidor
+          example: 20429577635
+        edad:
+          type: integer
+          description: edad del repartidor
+          example: 22
+    repartidores_repartidorID_body:
+      required:
+      - apellido
+      - cuil
+      - edad
+      - nombre
+      type: object
+      properties:
+        nombre:
+          type: string
+          description: nombre del repartidor
+          example: Miguel
+        apellido:
+          type: string
+          description: apellido del repartidor
+          example: Merentiel
+        cuil:
+          type: integer
+          description: CUIL del repartidor
+          example: 20429577635
+        edad:
+          type: integer
+          description: edad del repartidor
+          example: 22
+    repartidorID_vehiculos_body:
+      oneOf:
+      - $ref: '#/components/schemas/Auto'
+      - $ref: '#/components/schemas/Bicicleta'
+      - $ref: '#/components/schemas/Moto'
+    vehiculos_vehiculoID_body:
+      oneOf:
+      - $ref: '#/components/schemas/Auto'
+      - $ref: '#/components/schemas/Bicicleta'
+      - $ref: '#/components/schemas/Moto'
+    pedidoId_repartidor_body:
+      required:
+      - id_repartidor
+      type: object
+      properties:
+        id_repartidor:
+          type: string
+          description: ID del repartidor que se quiere asignar al pedido
+          example: MM82731674
+    pedidos_body:
+      required:
+      - direccion_entrega
+      type: object
+      properties:
+        direccion_entrega:
+          type: string
+          description: dirección en la que se ha de entregar este pedido
+    pedidos_pedidoId_body:
+      required:
+      - direccion_entrega
+      type: object
+      properties:
+        direccion_entrega:
+          type: string
+          description: dirección en la que se ha de entregar este pedido
+    pedidoId_potes_body:
+      required:
+      - gustos
+      - peso
+      type: object
+      properties:
+        peso:
+          $ref: '#/components/schemas/PesoDePote'
+        gustos:
+          type: array
+          description: los gustos de helado en este pote
+          example:
+          - ddl
+          - pist
+          items:
+            type: string
+    Repartidor__links:
+      type: object
+      properties:
+        vehiculos:
+          $ref: '#/components/schemas/Link'
+        modificar_datos:
+          $ref: '#/components/schemas/Link'
+        eliminar_repartidor:
+          $ref: '#/components/schemas/Link'
+      description: hypermedia links de un repartidor
+      example:
+        eliminar_repartidor: null
+        modificar_datos: null
+        vehiculos:
+          verb: GET
+          href: http://foo.com/bar
+    Vehiculo__links:
+      type: object
+      properties:
+        modificar_vehiculo:
+          $ref: '#/components/schemas/Link'
+      description: hypermedia links de un vehiculo
+      example:
+        modificar_vehiculo:
+          verb: GET
+          href: http://foo.com/bar
+    Pedido__links:
+      type: object
+      properties:
+        potes:
+          $ref: '#/components/schemas/Link'
+        pagar:
+          $ref: '#/components/schemas/Link'
+        pago:
+          $ref: '#/components/schemas/Link'
+      description: hypermedia links de un pedido
+      example:
+        pagar: null
+        potes:
+          verb: GET
+          href: http://foo.com/bar
+        pago: null
+    Pote__links:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+      description: hypermedia links de un gusto dentro de un pote
+      example:
+        self:
+          verb: GET
+          href: http://foo.com/bar
+    Pote_gustos:
+      type: object
+      properties:
+        id:
+          type: string
+          description: el id del gusto de helado en este pote
+          example: ddl
+        _links:
+          $ref: '#/components/schemas/Pote__links'
+      example:
+        _links:
+          self:
+            verb: GET
+            href: http://foo.com/bar
+        id: ddl
+    Pote__links_1:
+      type: object
+      properties:
+        pedido:
+          $ref: '#/components/schemas/Link'
+        borrar:
+          $ref: '#/components/schemas/Link'
+      description: hypermedia links de un pote
+      example:
+        borrar: null
+        pedido: null
+  parameters:
+    edadRepartidor:
+      name: edad
+      in: query
+      required: false
+      style: form
+      explode: true
+      schema:
+        type: integer
+    repartidorID:
+      name: repartidorID
+      in: path
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    vehiculoID:
+      name: vehiculoID
+      in: path
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    gustoId:
+      name: gustoId
+      in: path
+      description: id del gusto
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+    pedidoId:
+      name: pedidoId
+      in: path
+      description: id del pedido
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
+    poteId:
+      name: poteId
+      in: path
+      description: id del pote
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: integer
