@@ -1,5 +1,8 @@
 'use strict';
 
+var db = require('../service/GustosService');
+const {client} = require('../db/dbConnection');
+
 
 /**
  * Listar los gustos de helado
@@ -8,24 +11,22 @@
  * returns List
  **/
 exports.gustosGET = function(tipo) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "tipo" : "dulce de leches",
-  "id" : "ddl",
-  "nombre" : "Dulce de leche"
-}, {
-  "tipo" : "dulce de leches",
-  "id" : "ddl",
-  "nombre" : "Dulce de leche"
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+  const database = client.db('Via-Apilia');
+  const collection = database.collection('Gustos');
+  
+  // si no hay query paso filtro vacio
+  const query = tipo ? { tipo: tipo } : {};
+
+  return new Promise(async function(resolve, reject) {
+    try {
+      const gustos = await collection.find(query).toArray();
+      resolve(gustos);
+    } catch (error) {
+      console.error("Error fetching gustos:", error);
+      reject(error);
     }
   });
-}
+};
 
 
 /**
