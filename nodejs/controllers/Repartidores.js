@@ -46,7 +46,7 @@ module.exports.repartidoresRepartidorIDGET = function repartidoresRepartidorIDGE
 module.exports.repartidoresRepartidorIDPUT = function repartidoresRepartidorIDPUT (req, res, next, body, repartidorID) {
   Repartidores.repartidoresRepartidorIDPUT(body, repartidorID)
     .then(function (response) {
-      res.status(204).send();
+      res.status(200).send(response);
     })
     .catch(function (error) {
       if (error.message === 'Request Body no válido') {

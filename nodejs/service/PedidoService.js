@@ -3,6 +3,9 @@
 const { ObjectId } = require('mongodb');
 const {client} = require('../db/dbConnection');
 const { validateMongoID } = require('../utils/validation/validateMongoID');
+const database = client.db('Via-Apilia');
+const collection = database.collection('Pedidos');
+const repartidoresCollection = database.collection('Repartidores');
 
 /**
  * Crear un nuevo pedido a la dirección indicada
@@ -11,38 +14,27 @@ const { validateMongoID } = require('../utils/validation/validateMongoID');
  * returns Pedido
  **/
 exports.pedidosPOST = function(body) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "repartidor" : {
-    "_links" : {
-      "vehiculos" : {
-        "verb" : "GET",
-        "href" : "http://foo.com/bar"
-      }
-    },
-    "apellido" : "Merentiel",
-    "id" : "MM82731674",
-    "cuil" : 20429577635,
-    "nombre" : "Miguel",
-    "edad" : 21
-  },
-  "_links" : {
-    "potes" : {
-      "verb" : "GET",
-      "href" : "http://foo.com/bar"
-    }
-  },
-  "id" : 22,
-  "direccion_entrega" : "Lavalleja 244 4C, CABA"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+  
+  return new Promise(async function(resolve, reject) {
+      (async() =>{
+        try { 
+  
+          const repartidorAsignado = await repartidoresCollection.findOne();
+          body.repartidor = repartidorAsignado;
+  
+          const result = await collection.insertOne(body);
+          const insertedId = result.insertedId;
+  
+          const responseBody = { ...body, _id: insertedId };
+  
+          resolve(responseBody);
+        } catch (error) {
+          reject(error);
+        }
+      })()
+    });
 }
+
 
 
 /**
@@ -52,31 +44,29 @@ exports.pedidosPOST = function(body) {
  * returns Pedido
  **/
 exports.pedidosPedidoIdGET = function(pedidoId) {
-  
   if (!validateMongoID(pedidoId)) {
     return Promise.reject(new Error('ID de pedido no válido'));
   }
 
-  const database = client.db('Via-Apilia');
-  const collection = database.collection('Pedidos');
-
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId }; 
 
-  return new Promise(async (resolve, reject) => {
-    try {
-      const pedido = await collection.findOne(idPedido);
-      
-      if (pedido) {
-        resolve(pedido);
-      } else {
-        const error = new Error('Pedido no encontrado');
+  return new Promise((resolve, reject) => {
+    (async () => {
+      try {
+        const pedido = await collection.findOne(idPedido);
+        
+        if (pedido) {
+          resolve(pedido);
+        } else {
+          const error = new Error('Pedido no encontrado');
+          reject(error);
+        }
+      } catch (error) {
+        console.error("Error fetching pedidos:", error);
         reject(error);
       }
-    } catch (error) {
-      console.error("Error fetching pedidos:", error);
-      reject(error);
-    }
+    })()
   });
 }
 
@@ -89,36 +79,28 @@ exports.pedidosPedidoIdGET = function(pedidoId) {
  * returns Pedido
  **/
 exports.pedidosPedidoIdPUT = function(body,pedidoId) {
+  if (!validateMongoID(pedidoId)) {
+    return Promise.reject(new Error('No se conoce un pedido con tal id.'));
+  }
+
+  const objectId = new ObjectId(pedidoId);
+  const idPedido = { _id: objectId }; 
+
   return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "repartidor" : {
-    "_links" : {
-      "vehiculos" : {
-        "verb" : "GET",
-        "href" : "http://foo.com/bar"
+    (async()=>{
+      try {
+        const result = await collection.updateOne(idPedido, {$set : body});
+        if (result.matchedCount === 0) {
+          throw new Error('No se conoce un pedido con tal id.');
+        }
+  
+        const responseBody = { ...body, _id: pedidoId };
+  
+        resolve(responseBody);
+      } catch (error) {
+        reject(error);
       }
-    },
-    "apellido" : "Merentiel",
-    "id" : "MM82731674",
-    "cuil" : 20429577635,
-    "nombre" : "Miguel",
-    "edad" : 21
-  },
-  "_links" : {
-    "potes" : {
-      "verb" : "GET",
-      "href" : "http://foo.com/bar"
-    }
-  },
-  "id" : 22,
-  "direccion_entrega" : "Lavalleja 244 4C, CABA"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
+    })()
   });
 }
 
@@ -130,8 +112,27 @@ exports.pedidosPedidoIdPUT = function(body,pedidoId) {
  * no response value expected for this operation
  **/
 exports.pedidosPedidoIdRepartidorDELETE = function(pedidoId) {
+  if (!validateMongoID(pedidoId)) {
+    return Promise.reject(new Error('No se conoce un pedido con tal id.'));
+  }
+
+  const objectId = new ObjectId(pedidoId);
+  const idPedido = { _id: objectId }; 
+
   return new Promise(function(resolve, reject) {
-    resolve();
+    (async () => {
+      try {
+        const result = await collection.updateOne(idPedido, { $set: { repartidor: {} } });
+        // se podria incluir otro error en caso de que no modifique porque el request body es igual a los datos de la db
+        if (result.matchedCount === 0) {
+          throw new Error('No se conoce un repartidor con tal id.');
+        }
+        
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    })()
   });
 }
 
@@ -144,36 +145,43 @@ exports.pedidosPedidoIdRepartidorDELETE = function(pedidoId) {
  * returns Pedido
  **/
 exports.pedidosPedidoIdRepartidorPUT = function(body,pedidoId) {
+  if (!validateMongoID(pedidoId)) {
+    return Promise.reject(new Error('No se conoce un pedido con tal id.'));
+  }
+
+  if (!validateMongoID(body.id_repartidor)) {
+    return Promise.reject(new Error('Hubo un error al validar los datos del repartidor'));
+  }
+
+  const objectIdPedido = new ObjectId(pedidoId);
+  const idPedido = { _id: objectIdPedido }; 
+
+  const objectIdRepartidor = new ObjectId(body.id_repartidor);
+  const idRepartidor = { _id: objectIdRepartidor }; 
+
   return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "repartidor" : {
-    "_links" : {
-      "vehiculos" : {
-        "verb" : "GET",
-        "href" : "http://foo.com/bar"
+    (async () => {
+      try {
+        const repartidor = await repartidoresCollection.findOne(idRepartidor);
+        if (!repartidor) {
+          throw new Error('Hubo un error al validar los datos del repartidor');
+        }
+  
+        const result = await collection.findOneAndUpdate(
+          idPedido,
+          { $set: { repartidor: repartidor } },
+          { returnOriginal: false }
+        );
+
+        if (!result) {
+          throw new Error('No se conoce un pedido con tal id.');
+        }
+  
+        resolve(result);
+      } catch (error) {
+        reject(error);
       }
-    },
-    "apellido" : "Merentiel",
-    "id" : "MM82731674",
-    "cuil" : 20429577635,
-    "nombre" : "Miguel",
-    "edad" : 21
-  },
-  "_links" : {
-    "potes" : {
-      "verb" : "GET",
-      "href" : "http://foo.com/bar"
-    }
-  },
-  "id" : 22,
-  "direccion_entrega" : "Lavalleja 244 4C, CABA"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
+    })()
   });
 }
 
