@@ -2,18 +2,17 @@
 
 
 const {client} = require('../db/dbConnection');
+const database = client.db('Via-Apilia');
+const collection = database.collection('Gustos');
 
 
 /**
  * Listar los gustos de helado
- *
- * tipo TipoDeGusto  (optional)
- * returns List
- **/
+*
+* tipo TipoDeGusto  (optional)
+* returns List
+**/
 exports.gustosGET = function(tipo) {
-  const database = client.db('Via-Apilia');
-  const collection = database.collection('Gustos');
-  
   // si no hay query paso filtro vacio
   const query = tipo ? { tipo: tipo } : {};
   const projection = { _id: 0} // saco la id de la db
@@ -37,9 +36,6 @@ exports.gustosGET = function(tipo) {
  * returns Gusto
  **/
 exports.gustosGustoIdGET = function(gustoId) {
-  const database = client.db('Via-Apilia');
-  const collection = database.collection('Gustos');
-
   const idGusto = { id: gustoId }; 
   const options = { projection: { _id:0 }}; // saco la id de la db
 

@@ -1,6 +1,8 @@
 'use strict';
 
+const { ObjectId } = require('mongodb');
 const {client} = require('../db/dbConnection');
+const { validateMongoID } = require('../utils/validation/validateMongoID');
 
 /**
  * Crear un nuevo pedido a la dirección indicada
@@ -50,15 +52,20 @@ exports.pedidosPOST = function(body) {
  * returns Pedido
  **/
 exports.pedidosPedidoIdGET = function(pedidoId) {
+  
+  if (!validateMongoID(pedidoId)) {
+    return Promise.reject(new Error('ID de pedido no válido'));
+  }
+
   const database = client.db('Via-Apilia');
   const collection = database.collection('Pedidos');
 
-  const idPedido = { id: pedidoId }; 
-  const options = { projection:{ _id: 0 } };
+  const objectId = new ObjectId(pedidoId);
+  const idPedido = { _id: objectId }; 
 
   return new Promise(async (resolve, reject) => {
     try {
-      const pedido = await collection.findOne(idPedido, options);
+      const pedido = await collection.findOne(idPedido);
       
       if (pedido) {
         resolve(pedido);

@@ -1,4 +1,4 @@
-const api_pw = 'cFbAWXnEz8g935Fp';
+const api_pw = '';
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://felipebigiolli:${api_pw}@via-apilia.6idqtd9.mongodb.net/?retryWrites=true&w=majority&appName=Via-Apilia"`;
