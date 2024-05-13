@@ -1,6 +1,16 @@
 'use strict';
 
+const { ObjectId } = require("mongodb");
+const { client } = require("../db/dbConnection");
+const { validateMongoID } = require("../utils/validation/validateMongoID");
+const { validateRequestBodyVehiculo } = require("../utils/validation/validateRequestBodyVehiculo");
 
+const database = client.db('Via-Apilia');
+const collectionRepartidores = database.collection('Repartidores');
+const collectionVehiculos = database.collection('VehiculosRepartidores');
+
+const noSeConoceRepartidorErrorDescription = 'No existe un repartidor asociado a la ID.';
+const noSePudoValidarRequestBodyErrorDescription = 'Hubo un error de validacion con alguno de los datos.';
 /**
  * Listar los vehiculos de un repartidor de la heladeria
  *
@@ -8,14 +18,29 @@
  * returns List
  **/
 exports.repartidoresRepartidorIDVehiculosGET = function(repartidorID) {
+  if(!validateMongoID(repartidorID)){
+    return Promise.reject(new Error(noSeConoceRepartidorErrorDescription))
+  }
+
+  const objectId = new ObjectId(repartidorID);
+  const idRepartidor = {_id : objectId};
+  const idRepartidorAsociado = { idRepartidorAsociado: repartidorID }; 
+
   return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ "", "" ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
+    (async() =>{
+      try {
+        const repartidorAsociado = await collectionRepartidores.findOne(idRepartidor);
+        if (repartidorAsociado) {
+          const vehiculos = await collectionVehiculos.find(idRepartidorAsociado).toArray();
+          resolve(vehiculos);
+        } else {
+          const error = new Error(noSeConoceRepartidorErrorDescription);
+          reject(error);
+        }
+      } catch (error) {
+        reject(error);
+      }
+    })()
   });
 }
 
@@ -28,23 +53,39 @@ exports.repartidoresRepartidorIDVehiculosGET = function(repartidorID) {
  * returns Vehiculo
  **/
 exports.repartidoresRepartidorIDVehiculosPOST = function(body,repartidorID) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "tipoDeVehiculo" : "Auto",
-  "idVehiculo" : "A312786DCA223",
-  "_links" : {
-    "modificar_vehiculo" : {
-      "verb" : "GET",
-      "href" : "http://foo.com/bar"
-    }
+  // SEGUIR DESDE ACA, MODIFICAR SPEC SACANDO ONEOF (O HACIENDO ANDAR) PARA QUE DEJE MANDAR ALGUNO DE LOS SCHEMAS
+  if(!validateMongoID(repartidorID)){
+    return Promise.reject(new Error(noSeConoceRepartidorErrorDescription))
   }
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
+
+  if(!validateRequestBodyVehiculo(body)){
+    return Promise.reject(new Error(noSePudoValidarRequestBodyErrorDescription))
+  }
+
+  const objectId = new ObjectId(repartidorID);
+  const idRepartidor = { _id: objectId }; 
+
+  return new Promise(function(resolve, reject) {
+  (async() =>{
+    try {
+      const repartidorAsignado = await repartidoresCollection.findOne(idRepartidor); 
+      if (repartidorAsignado) {
+        body.idRepartidorAsociado = repartidorID;
+        const result = await collectionVehiculos.insertOne(body);
+        const insertedId = result.insertedId;
+  
+        const { idRepartidorAsociado, ...responseBody } = body;
+        responseBody._id = insertedId;
+
+        resolve(responseBody);
+      } else {
+        const error = new Error(noSeConoceRepartidorErrorDescription);
+        reject(error);
+      }
+    } catch (error) {
+      reject(error);
     }
+  })()
   });
 }
 

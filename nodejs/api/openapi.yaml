@@ -607,6 +607,10 @@ components:
           type: string
           description: representa el tipo de vehiculo
           example: Auto
+          enum:
+          - "Auto"
+          - "Moto"
+          - "Bicicleta"
         idVehiculo:
           type: string
           description: GUID asociada al vehiculo

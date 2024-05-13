@@ -6,10 +6,10 @@ var VehiculosDeUnRepartidor = require('../service/VehiculosDeUnRepartidorService
 module.exports.repartidoresRepartidorIDVehiculosGET = function repartidoresRepartidorIDVehiculosGET (req, res, next, repartidorID) {
   VehiculosDeUnRepartidor.repartidoresRepartidorIDVehiculosGET(repartidorID)
     .then(function (response) {
-      utils.writeJson(res, response);
+      res.status(200).send(response);
     })
-    .catch(function (response) {
-      utils.writeJson(res, response);
+    .catch(function (error) {
+      res.status(404).send(error.message);
     });
 };
 

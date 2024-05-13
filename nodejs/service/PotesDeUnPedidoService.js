@@ -26,13 +26,22 @@ exports.pedidosPedidoIdPotesGET = function(pedidoId) {
     return Promise.reject(new Error(noSeConocePedidoErrorDescription));
   }
 
-  const idPedido = { idPedidoAsociado: pedidoId }; 
+  const objectId = new ObjectId(pedidoId);
+  const idPedido = { _id: objectId }; 
+  const idPedidoAsociado = { idPedidoAsociado: pedidoId }; 
 
   return new Promise(function(resolve, reject) {
     (async() =>{
       try {
-        const potes = await collectionPotes.find(idPedido).toArray();
-        resolve(potes);
+        const pedidoAsociado = await collectionPedidos.findOne(idPedido);
+
+        if (pedidoAsociado) {
+          const potes = await collectionPotes.find(idPedidoAsociado).toArray();
+          resolve(potes);
+        } else {
+          const error = new Error(noSeConocePedidoErrorDescription);
+          reject(error);
+        }
       } catch (error) {
         reject(error);
       }
