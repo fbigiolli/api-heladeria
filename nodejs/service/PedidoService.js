@@ -7,6 +7,9 @@ const database = client.db('Via-Apilia');
 const collection = database.collection('Pedidos');
 const repartidoresCollection = database.collection('Repartidores');
 
+const noSeConocePedidoErrorDescription = 'No se conoce un pedido con tal id.';
+const noSeConoceRepartidorErrorDescription = 'No se conoce un repartidor con tal id.';
+const noSePudoValidarRepartidorErrorDescription = 'Hubo un error al validar los datos del repartidor';
 /**
  * Crear un nuevo pedido a la dirección indicada
  *
@@ -45,7 +48,7 @@ exports.pedidosPOST = function(body) {
  **/
 exports.pedidosPedidoIdGET = function(pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error('ID de pedido no válido'));
+    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
   }
 
   const objectId = new ObjectId(pedidoId);
@@ -59,7 +62,7 @@ exports.pedidosPedidoIdGET = function(pedidoId) {
         if (pedido) {
           resolve(pedido);
         } else {
-          const error = new Error('Pedido no encontrado');
+          const error = new Error(noSeConocePedidoErrorDescription);
           reject(error);
         }
       } catch (error) {
@@ -80,7 +83,7 @@ exports.pedidosPedidoIdGET = function(pedidoId) {
  **/
 exports.pedidosPedidoIdPUT = function(body,pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error('No se conoce un pedido con tal id.'));
+    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
   }
 
   const objectId = new ObjectId(pedidoId);
@@ -91,7 +94,7 @@ exports.pedidosPedidoIdPUT = function(body,pedidoId) {
       try {
         const result = await collection.updateOne(idPedido, {$set : body});
         if (result.matchedCount === 0) {
-          throw new Error('No se conoce un pedido con tal id.');
+          throw new Error(noSeConocePedidoErrorDescription);
         }
   
         const responseBody = { ...body, _id: pedidoId };
@@ -113,7 +116,7 @@ exports.pedidosPedidoIdPUT = function(body,pedidoId) {
  **/
 exports.pedidosPedidoIdRepartidorDELETE = function(pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error('No se conoce un pedido con tal id.'));
+    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
   }
 
   const objectId = new ObjectId(pedidoId);
@@ -125,7 +128,7 @@ exports.pedidosPedidoIdRepartidorDELETE = function(pedidoId) {
         const result = await collection.updateOne(idPedido, { $set: { repartidor: {} } });
         // se podria incluir otro error en caso de que no modifique porque el request body es igual a los datos de la db
         if (result.matchedCount === 0) {
-          throw new Error('No se conoce un repartidor con tal id.');
+          throw new Error(noSeConoceRepartidorErrorDescription);
         }
         
         resolve();
@@ -146,11 +149,11 @@ exports.pedidosPedidoIdRepartidorDELETE = function(pedidoId) {
  **/
 exports.pedidosPedidoIdRepartidorPUT = function(body,pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error('No se conoce un pedido con tal id.'));
+    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
   }
 
   if (!validateMongoID(body.id_repartidor)) {
-    return Promise.reject(new Error('Hubo un error al validar los datos del repartidor'));
+    return Promise.reject(new Error(noSePudoValidarRepartidorErrorDescription));
   }
 
   const objectIdPedido = new ObjectId(pedidoId);
@@ -164,7 +167,7 @@ exports.pedidosPedidoIdRepartidorPUT = function(body,pedidoId) {
       try {
         const repartidor = await repartidoresCollection.findOne(idRepartidor);
         if (!repartidor) {
-          throw new Error('Hubo un error al validar los datos del repartidor');
+          throw new Error(noSePudoValidarRepartidorErrorDescription);
         }
   
         const result = await collection.findOneAndUpdate(
@@ -174,7 +177,7 @@ exports.pedidosPedidoIdRepartidorPUT = function(body,pedidoId) {
         );
 
         if (!result) {
-          throw new Error('No se conoce un pedido con tal id.');
+          throw new Error(noSeConocePedidoErrorDescription);
         }
   
         resolve(result);
