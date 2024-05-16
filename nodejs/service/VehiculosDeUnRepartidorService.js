@@ -11,6 +11,7 @@ const collectionVehiculos = database.collection('VehiculosRepartidores');
 
 const noSeConoceRepartidorErrorDescription = 'No existe un repartidor asociado a la ID.';
 const noSePudoValidarRequestBodyErrorDescription = 'Hubo un error de validacion con alguno de los datos.';
+const noSeConoceVehiculoErrorDescription = 'No existe un vehiculo asociado a la ID.';
 /**
  * Listar los vehiculos de un repartidor de la heladeria
  *
@@ -53,7 +54,6 @@ exports.repartidoresRepartidorIDVehiculosGET = function(repartidorID) {
  * returns Vehiculo
  **/
 exports.repartidoresRepartidorIDVehiculosPOST = function(body,repartidorID) {
-  // SEGUIR DESDE ACA, MODIFICAR SPEC SACANDO ONEOF (O HACIENDO ANDAR) PARA QUE DEJE MANDAR ALGUNO DE LOS SCHEMAS
   if(!validateMongoID(repartidorID)){
     return Promise.reject(new Error(noSeConoceRepartidorErrorDescription))
   }
@@ -68,7 +68,13 @@ exports.repartidoresRepartidorIDVehiculosPOST = function(body,repartidorID) {
   return new Promise(function(resolve, reject) {
   (async() =>{
     try {
-      const repartidorAsignado = await repartidoresCollection.findOne(idRepartidor); 
+      const repartidorAsignado = await collectionRepartidores.findOne(idRepartidor); 
+      const patenteExistente = await collectionVehiculos.findOne({patente : body.patente});
+
+      if (patenteExistente) {
+        return reject(new Error(noSePudoValidarRequestBodyErrorDescription));
+      }
+
       if (repartidorAsignado) {
         body.idRepartidorAsociado = repartidorID;
         const result = await collectionVehiculos.insertOne(body);
@@ -90,6 +96,7 @@ exports.repartidoresRepartidorIDVehiculosPOST = function(body,repartidorID) {
 }
 
 
+
 /**
  * Modifica un vehiculo existente asociado al repartidor
  *
@@ -99,23 +106,56 @@ exports.repartidoresRepartidorIDVehiculosPOST = function(body,repartidorID) {
  * returns Vehiculo
  **/
 exports.repartidoresRepartidorIDVehiculosVehiculoIDPUT = function(body,repartidorID,vehiculoID) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "tipoDeVehiculo" : "Auto",
-  "idVehiculo" : "A312786DCA223",
-  "_links" : {
-    "modificar_vehiculo" : {
-      "verb" : "GET",
-      "href" : "http://foo.com/bar"
-    }
+  if(!validateMongoID(repartidorID)){
+    return Promise.reject(new Error(noSeConoceRepartidorErrorDescription))
   }
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
+
+  if(!validateMongoID(vehiculoID)){
+    return Promise.reject(new Error(noSeConoceVehiculoErrorDescription))
+  }
+
+  if(!validateRequestBodyVehiculo(body)){
+    return Promise.reject(new Error(noSePudoValidarRequestBodyErrorDescription))
+  }
+
+  const objectIdRepartidor = new ObjectId(repartidorID);
+  const idRepartidor = { _id: objectIdRepartidor }; 
+
+  const objectIdVehiculo = new ObjectId(vehiculoID);
+  const idVehiculo = { _id: objectIdVehiculo }; 
+
+  return new Promise(function(resolve, reject) {
+    (async()=>{
+      try {
+        const repartidorAsignado = await collectionRepartidores.findOne(idRepartidor);
+        const vehiculoAModificar = await collectionVehiculos.findOne(idVehiculo);
+        const patenteExistente =  await collectionVehiculos.findOne({patente : body.patente});
+
+        if (patenteExistente && patenteExistente._id != vehiculoID) {
+          return reject(new Error(noSePudoValidarRequestBodyErrorDescription));
+        }
+
+        if(!vehiculoAModificar){
+          return reject(new Error(noSeConoceVehiculoErrorDescription));
+        }
+
+        if (repartidorAsignado) {
+          body.idRepartidorAsociado = repartidorID;
+          await collectionVehiculos.replaceOne(idVehiculo,body);
+    
+          const { idRepartidorAsociado, ...responseBody } = body;
+          responseBody._id = vehiculoID;
+  
+          resolve(responseBody);
+        } else {
+          const error = new Error(noSeConoceRepartidorErrorDescription);
+          reject(error);
+        }
+
+      } catch (error) {
+        reject(error);
+      }
+    })()
+    
   });
 }
-

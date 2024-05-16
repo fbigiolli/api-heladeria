@@ -7,7 +7,9 @@ exports.validateRequestBodyVehiculo = function validateRequestBodyVehiculo(body)
     if (body.tipoDeVehiculo != 'Bicicleta') {
         return regexPatenteNueva.test(body.patente) || regexPatenteVieja.test(body.patente)
     } else {
-        // podria validar que el rodado tenga sentido
-        return true;
+        const rodadoInRange = body.rodado >= 26 && body.rodado <= 29;
+        const hasPatente = 'patente' in body;
+        
+        return rodadoInRange && !hasPatente;
     }
 }

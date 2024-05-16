@@ -598,71 +598,65 @@ components:
         cuil: 20429577635
         nombre: Miguel
         edad: 21
+
     Vehiculo:
-      required:
-      - tipoDeVehiculo
       type: object
+      discriminator:
+        propertyName: tipoDeVehiculo
       properties:
         tipoDeVehiculo:
           type: string
           description: representa el tipo de vehiculo
           example: Auto
-          enum:
-          - "Auto"
-          - "Moto"
-          - "Bicicleta"
         idVehiculo:
           type: string
           description: GUID asociada al vehiculo
           example: A312786DCA223
         _links:
-          $ref: '#/components/schemas/Vehiculo__links'
-      description: Representa un vehiculo de un repartidor
-      example:
-        tipoDeVehiculo: Auto
-        idVehiculo: A312786DCA223
-        _links:
-          modificar_vehiculo:
-            verb: GET
-            href: http://foo.com/bar
-      discriminator:
-        propertyName: tipoDeVehiculo
+          type: object
+          description: hypermedia links de un vehiculo
+          properties:
+            modificar_vehiculo: 
+              $ref: '#/components/schemas/Link'
+      required:
+        - tipoDeVehiculo
+
     Auto:
-      description: Representa un auto
       allOf:
-      - $ref: '#/components/schemas/Vehiculo'
-      - required:
-        - patente
-        type: object
-        properties:
-          patente:
-            type: string
-            description: la patente correspondiente al auto
-            example: AE865BD
+        - $ref: '#/components/schemas/Vehiculo'
+        - type: object
+          properties:
+            patente:
+              type: string
+              description: la patente correspondiente al auto
+              example: AE865BD
+          required:
+            - patente
+
     Moto:
-      description: Representa una moto
       allOf:
-      - $ref: '#/components/schemas/Vehiculo'
-      - required:
-        - patente
-        type: object
-        properties:
-          patente:
-            type: string
-            description: la patente correspondiente al auto
-            example: A123BCD
+        - $ref: '#/components/schemas/Vehiculo'
+        - type: object
+          properties:
+            patente:
+              type: string
+              description: la patente correspondiente a la moto
+              example: A123BCD
+          required:
+            - patente
+
     Bicicleta:
-      description: Representa una bicicleta
       allOf:
-      - $ref: '#/components/schemas/Vehiculo'
-      - required:
-        - rodado
-        type: object
-        properties:
-          rodado:
-            type: integer
-            description: representa el rodado de la bicicleta
-            example: 27
+        - $ref: '#/components/schemas/Vehiculo'
+        - type: object
+          properties:
+            rodado:
+              type: integer
+              description: representa el rodado de la bicicleta
+              example: 27
+          required:
+            - rodado
+
     Gusto:
       required:
       - id
@@ -914,11 +908,15 @@ components:
       - $ref: '#/components/schemas/Auto'
       - $ref: '#/components/schemas/Bicicleta'
       - $ref: '#/components/schemas/Moto'
+      discriminator:
+        propertyName: tipoDeVehiculo
     vehiculos_vehiculoID_body:
       oneOf:
       - $ref: '#/components/schemas/Auto'
       - $ref: '#/components/schemas/Bicicleta'
       - $ref: '#/components/schemas/Moto'
+      discriminator:
+        propertyName: tipoDeVehiculo
     pedidoId_repartidor_body:
       required:
       - id_repartidor
