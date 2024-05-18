@@ -1,4 +1,4 @@
-const api_pw = '';
+const api_pw = 'eivDSpVD83o7FiWc';
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://felipebigiolli:${api_pw}@via-apilia.6idqtd9.mongodb.net/?retryWrites=true&w=majority&appName=Via-Apilia"`;
@@ -25,4 +25,15 @@ async function dbConnection() {
   }
 }
 
-module.exports = { client , dbConnection };
+async function dbDisconnect() {
+  try {
+    await client.close();
+    console.log("Disconnected from MongoDB!");
+  } catch (error) {
+    console.error("Error disconnecting from MongoDB:", error);
+    throw error;
+  }
+}
+
+module.exports = { client, dbConnection, dbDisconnect };
+

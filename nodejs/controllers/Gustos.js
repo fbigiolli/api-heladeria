@@ -6,10 +6,10 @@ var Gustos = require('../service/GustosService');
 module.exports.gustosGET = function gustosGET (req, res, next, tipo) {
   Gustos.gustosGET(tipo)
     .then(function (response) {
-      utils.writeJson(res, response);
+      res.status(200).send(response);
     })
-    .catch(function (response) {
-      utils.writeJson(res, response);
+    .catch(function (error) {
+      res.status(500).send(error.message);
     });
 };
 
