@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../index.js'); // Asegúrate de que la ruta al archivo principal de tu app es correcta
+const app = require('../index.js');
 const server = require('../index');
 
 afterAll((done) => {
@@ -10,15 +10,18 @@ describe('Gustos', () => {
 
     describe('GustosGET', () => {
         let response;
+        let responseWithTipoQuery;
+        const tipoQuery = 'cremas';
         beforeAll(async () => {
             response = await request(app).get('/gustos');
+            responseWithTipoQuery = await request(app).get(`/gustos?tipo=${tipoQuery}`)
         });
 
         it('should respond with a 200 status', () => {
             expect(response.statusCode).toEqual(200);
         });
 
-        it('Response Body returns an array with objects having id, tipo, and nombre attributes', () => {
+        it('should return an array with objects having id, tipo, and nombre attributes', () => {
             // Verifica que el cuerpo de la respuesta sea un array
             expect(Array.isArray(response.body)).toBe(true);
         
@@ -28,7 +31,13 @@ describe('Gustos', () => {
                 expect(obj).toHaveProperty('tipo');
                 expect(obj).toHaveProperty('nombre');
             });
-        });        
+        });       
+        
+        it('Request with Tipo query parameter should return an array with objects that match Tipo', ()=>{
+            responseWithTipoQuery.body.forEach(obj =>{
+                expect(obj.tipo).toEqual('cremas');
+            })
+        });
     });
     
     describe('GustosGustoIDGET', () =>{
