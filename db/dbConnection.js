@@ -1,7 +1,10 @@
-const api_pw = 'eivDSpVD83o7FiWc';
+const dotenv = require('dotenv').config();
+
+const api_user = process.env.DB_USR;
+const api_pw = process.env.DB_PW;
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
-const uri = `mongodb+srv://felipebigiolli:${api_pw}@via-apilia.6idqtd9.mongodb.net/?retryWrites=true&w=majority&appName=Via-Apilia"`;
+const uri = `mongodb+srv://${api_user}:${api_pw}@via-apilia.6idqtd9.mongodb.net/?retryWrites=true&w=majority&appName=Via-Apilia"`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {

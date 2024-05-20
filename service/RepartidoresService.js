@@ -151,6 +151,11 @@ exports.repartidoresRepartidorIDPUT = function(body, repartidorID) {
   return new Promise(function(resolve, reject) {
     (async () => {
       try {
+        const existingRepartidor = await collection.findOne({ cuil: body.cuil });
+        if (existingRepartidor && existingRepartidor._id != repartidorID) {
+          throw new Error('Request Body no válido');
+        }
+
         const result = await collection.updateOne(idRepartidor, {$set : body});
         // se podria incluir otro error en caso de que no modifique porque el request body es igual a los datos de la db
         if (result.matchedCount === 0) {

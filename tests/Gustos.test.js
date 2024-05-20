@@ -41,33 +41,39 @@ describe('Gustos', () => {
     });
     
     describe('GustosGustoIDGET', () =>{
-        let responseValidID;
-        let responseInvalidID;
-        beforeAll(async () => {
-            responseValidID = await request(app).get('/gustos/cdc');
-            responseInvalidID = await request(app).get('/gustos/khjasd78');
-        });
+        describe('Valid Requests', () =>{
+            let responseValidID;
+            beforeAll(async () => {
+                responseValidID = await request(app).get('/gustos/cdc');
+            });
 
-        it('should respond with a 200 status', () => {
-            expect(responseValidID.statusCode).toEqual(200);
-        });
-
-        it('Existing GustoID returns Response Body with object that represents crema del cielo', async () => {
-            expect(responseValidID.body).toEqual({
-                id: 'cdc',
-                tipo: 'cremas',
-                nombre: 'crema del cielo'
+            it('should respond with a 200 status', () => {
+                expect(responseValidID.statusCode).toEqual(200);
+            });
+    
+            it('Existing GustoID returns Response Body with object that represents crema del cielo', async () => {
+                expect(responseValidID.body).toEqual({
+                    id: 'cdc',
+                    tipo: 'cremas',
+                    nombre: 'crema del cielo'
+                });
             });
         });
 
-        it('Invalid GustoID should respond with a 404 status', async () => {
-            expect(responseInvalidID.statusCode).toEqual(404);
+        describe('Invalid Requests', ()=>{
+            let responseInvalidID;
+            beforeAll(async () => {
+                responseInvalidID = await request(app).get('/gustos/khjasd78');
+            });
+            it('Invalid GustoID should respond with a 404 status', async () => {
+                expect(responseInvalidID.statusCode).toEqual(404);
+            });
+            
+            it('Invalid GustoID error message should be: No se conoce un gusto con tal id', async () => {
+                expect(responseInvalidID.text).toEqual('No se conoce un gusto con tal id');
+            });
+            
         });
 
-        
-        it('Invalid GustoID error message should be: No se conoce un gusto con tal id', async () => {
-            expect(responseInvalidID.text).toEqual('No se conoce un gusto con tal id');
-        });
-        
     })
 });
