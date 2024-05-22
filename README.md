@@ -30,4 +30,4 @@ Para testear se usa el framework Jest.
 La API está especificada en **OAS 3.0**. Generé el server stub en **Node.JS** a partir de esa especificación usando **Swagger Codegen**. Para la base de datos uso **Atlas** (**MongoDB Cloud**). Para testing uso **Jest**.
 
 ## TODO
-[] Mocking para desacoplar tests
+- [ ] Mocking para desacoplar tests
