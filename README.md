@@ -31,3 +31,4 @@ La API está especificada en **OAS 3.0**. Generé el server stub en **Node.JS** 
 
 ## TODO
 - [ ] Mocking para desacoplar tests
+- [ ] DELETE en /repartidores/{repartidorID}/vehiculos/{vehiculoID}

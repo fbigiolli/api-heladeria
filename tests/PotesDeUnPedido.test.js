@@ -7,6 +7,8 @@ afterAll((done) => {
 });
 
 describe('Potes', ()=>{
+
+    // REEMPLAZAR CON UN BEFOREALL Y AFTERALL UNA VEZ HAYA SIDO TESTEADO PEDIDOSERVICE
     const idPedidoTest = "664d2406a3fc88a31bd5ea63";
     const validPeso500Pote = {
         "peso": "500",
