@@ -21,46 +21,63 @@ describe('Repartidores', () =>{
         "edad": 30
     }
 
+    const bodyValidRepartidor3 = {
+        "nombre": "Lucia",
+        "apellido": "Gonzalez",
+        "cuil": 27345678901,
+        "edad": 28
+    };
+    
     describe('RepartidoresGET', ()=>{
-        let response;
-        let responseWithEdadQuery;
-        const edadQuery = 22;
-        beforeAll(async() =>{
-            response = await request(app).get('/repartidores');
-            responseWithEdadQuery = await request(app).get(`/repartidores?edad=${edadQuery}`)
-        });
-
-        it('should respond with a 200 status', () => {
-            expect(response.statusCode).toEqual(200);
-        });
-
-        it('should return an array with objects having nombre, apellido, edad, cuil and _id', ()=>{
-            expect(Array.isArray(response.body)).toBe(true);
-
-            response.body.forEach(obj => {
-                expect(obj).toHaveProperty('nombre');
-                expect(obj).toHaveProperty('apellido');
-                expect(obj).toHaveProperty('edad');
-                expect(obj).toHaveProperty('cuil');
-                expect(obj).toHaveProperty('_id');
+        describe('Valid Requests', ()=>{
+            let response;
+            let responseWithEdadQuery;
+            const edadQuery = 22;
+            beforeAll(async() =>{
+                response = await request(app).get('/repartidores');
+                responseWithEdadQuery = await request(app).get(`/repartidores?edad=${edadQuery}`)
+            });
+    
+            it('should respond with a 200 status', () => {
+                expect(response.statusCode).toEqual(200);
+            });
+    
+            it('should return an array with objects having nombre, apellido, edad, cuil and _id', ()=>{
+                expect(Array.isArray(response.body)).toBe(true);
+    
+                response.body.forEach(obj => {
+                    expect(obj).toHaveProperty('nombre');
+                    expect(obj).toHaveProperty('apellido');
+                    expect(obj).toHaveProperty('edad');
+                    expect(obj).toHaveProperty('cuil');
+                    expect(obj).toHaveProperty('_id');
+                });
+            });
+    
+            it('Request with Edad query parameter should return an array with objects that match Edad', ()=>{
+                responseWithEdadQuery.body.forEach(obj =>{
+                    expect(obj.edad).toEqual(edadQuery);
+                })
+            });
+    
+            it('Every CUIL should be unique', ()=>{
+                const cuilSet = new Set();
+                const repartidores = response.body;
+    
+                response.body.forEach(obj => {
+                    cuilSet.add(obj.cuil);
+                })
+    
+                expect(cuilSet.size).toBe(repartidores.length);
             });
         });
 
-        it('Request with Edad query parameter should return an array with objects that match Edad', ()=>{
-            responseWithEdadQuery.body.forEach(obj =>{
-                expect(obj.edad).toEqual(edadQuery);
-            })
-        });
-
-        it('Every CUIL should be unique', ()=>{
-            const cuilSet = new Set();
-            const repartidores = response.body;
-
-            response.body.forEach(obj => {
-                cuilSet.add(obj.cuil);
-            })
-
-            expect(cuilSet.size).toBe(repartidores.length);
+        describe('Invalid Requests', ()=>{
+            const invalidEdadQuery = 'asd';
+            it('should return 400 if query parameter Edad isnt valid', async()=>{
+                const response = await request(app).get(`/repartidores?edad=${invalidEdadQuery}`)
+                expect(response.status).toBe(400);
+            });
         });
     });
 
@@ -100,6 +117,34 @@ describe('Repartidores', () =>{
         });
     });
 
+    describe('RepartidoresDELETE', ()=>{
+        describe('Valid Requests', ()=>{
+            let registerResponse;
+            let deleteResponse;
+            beforeAll(async()=>{
+                registerResponse = await request(app).post('/repartidores').send(bodyValidRepartidor);
+                expect(registerResponse.status).toBe(201);
+                deleteResponse = await request(app).delete(`/repartidores/${registerResponse.body._id}`);
+            });
+            
+            it('should respond with 201 if repartidorID is valid', async()=>{
+                expect(deleteResponse.status).toBe(204);
+            });
+
+            it('should respond with 404 after doing GET at RepartidorRepartidorID with deleted ID', async ()=>{
+                const getResponse = await request(app).get(`/repartidores/${registerResponse.body._id}`);
+                expect(getResponse.status).toBe(404);
+            });
+        });
+
+        describe('Invalid Requests', ()=>{
+            it('should respond with 404 if repartidorID isnt valid', async()=>{
+                const deleteResponse = await request(app).delete('/repartidores/asd123');
+                expect(deleteResponse.status).toBe(404);
+            });
+        });
+    });
+
     describe('RepartidoresPOST', ()=>{
         const testMissingField = async (field) => {
             const { [field]: _, ...bodySinCampo } = bodyValidRepartidor;
@@ -107,6 +152,27 @@ describe('Repartidores', () =>{
             expect(response.status).toBe(400);
         };
     
+        describe('Valid Requests', ()=>{
+            let validResponse;
+            beforeAll(async()=>{
+                validResponse = await request(app).post('/repartidores').send(bodyValidRepartidor);
+            });
+
+            afterAll(async () => {
+                if (validResponse.body && validResponse.body._id) {
+                    await request(app).delete(`/repartidores/${validResponse.body._id}`);
+                }   
+            });
+
+            it('should respond with 201 status if request body is valid', async ()=>{
+                expect(validResponse.status).toBe(201);
+            });
+
+            it('should have _id attribute in response body', ()=>{
+                expect(validResponse.body).toHaveProperty('_id');
+            });
+        });
+
         describe('Invalid Requests', ()=>{
             it('should respond with 400 status if nombre is missing', async()=>{
                 await testMissingField('nombre');
@@ -139,27 +205,6 @@ describe('Repartidores', () =>{
                 await request(app).delete(`/repartidores/${registerResponse.body._id}`);
             });
         });
-
-        describe('Valid Requests', ()=>{
-            let validResponse;
-            beforeAll(async()=>{
-                validResponse = await request(app).post('/repartidores').send(bodyValidRepartidor);
-            });
-
-            afterAll(async () => {
-                if (validResponse.body && validResponse.body._id) {
-                    await request(app).delete(`/repartidores/${validResponse.body._id}`);
-                }   
-            });
-
-            it('should respond with 201 status if request body is valid', async ()=>{
-                expect(validResponse.status).toBe(201);
-            });
-
-            it('should have _id attribute in response body', ()=>{
-                expect(validResponse.body).toHaveProperty('_id');
-            });
-        });
     });
 
     describe('RepartidoresRepartidorIDPUT', ()=>{
@@ -180,6 +225,24 @@ describe('Repartidores', () =>{
         afterAll(async()=>{
             await request(app).delete(`/repartidores/${repartidorID}`);
         });
+
+        describe('Valid Requests',()=>{
+
+            it('should respond with 200 status if request body is valid',async()=>{
+                const response = await request(app).put(`/repartidores/${repartidorID}`).send(bodyValidRepartidor2);
+                expect(response.status).toBe(200);
+            });
+
+            it('should return a response body with updated values', async()=>{
+                const response = await request(app).put(`/repartidores/${repartidorID}`).send(bodyValidRepartidor3);
+                const responseBody = response.body;
+                expect(responseBody.nombre).toBe(bodyValidRepartidor3.nombre);
+                expect(responseBody.apellido).toBe(bodyValidRepartidor3.apellido);
+                expect(responseBody.cuil).toBe(bodyValidRepartidor3.cuil);
+                expect(responseBody.edad).toBe(bodyValidRepartidor3.edad);
+                expect(responseBody._id).toBe(repartidorID);
+            });
+        })
 
         describe('Invalid Requests', ()=>{
             it('should respond with 404 status if repartidorID isnt valid', async()=>{
@@ -210,7 +273,7 @@ describe('Repartidores', () =>{
                 expect(response.status).toBe(400);
             });
 
-            it('should respond with 400 status if CUIL is already registered', async()=>{
+            it('should respond with 400 status if request body CUIL is already registered', async()=>{
 
                 const registerResponse = await request(app).post('/repartidores').send(bodyValidRepartidor2);
                 expect(registerResponse.status).toBe(201);
@@ -223,6 +286,5 @@ describe('Repartidores', () =>{
                 await request(app).delete(`/repartidores/${registerResponse.body._id}`);
             });
         })
-        
     });
 })

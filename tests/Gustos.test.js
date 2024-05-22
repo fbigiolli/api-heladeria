@@ -7,7 +7,6 @@ afterAll((done) => {
 });
 
 describe('Gustos', () => {
-
     describe('GustosGET', () => {
         let response;
         let responseWithTipoQuery;

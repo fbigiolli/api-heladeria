@@ -9,6 +9,7 @@ const { validateRequestBodyPote } = require("../utils/validation/validateRequest
 const database = client.db('Via-Apilia');
 const collectionPotes = database.collection('Potes');
 const collectionPedidos = database.collection('Pedidos');
+const collectionGustos = database.collection('Gustos');
 
 const noSeConocePedidoErrorDescription = 'No se conoce un pedido con tal id.';
 const noSeConocePoteErrorDescription = 'No se conoce un pote con tal id.';
@@ -58,13 +59,9 @@ exports.pedidosPedidoIdPotesGET = function(pedidoId) {
  * returns Pote
  **/
 exports.pedidosPedidoIdPotesPOST = function(body,pedidoId) {
+
   if (!validateMongoID(pedidoId)) {
     return Promise.reject(new Error(noSeConocePedidoErrorDescription));
-  }
-
-  // se podria devolver en cual fue el error de validacion
-  if(!validateRequestBodyPote(body) ){ // TODO validate!!!
-    return Promise.reject(new Error(noSePudoValidarRequestBodyErrorDescription))
   }
 
   const objectId = new ObjectId(pedidoId);
@@ -74,6 +71,13 @@ exports.pedidosPedidoIdPotesPOST = function(body,pedidoId) {
   (async () =>{
     try {
       const pedidoAsociado = await collectionPedidos.findOne(idPedido);
+
+      // se podria devolver en cual fue el error de validacion
+      const gustosHeladeria = await collectionGustos.find().toArray();  
+
+      if(! validateRequestBodyPote(body, gustosHeladeria) ){ 
+        return reject(new Error(noSePudoValidarRequestBodyErrorDescription));
+      }
 
       if (pedidoAsociado) {
         body.idPedidoAsociado = pedidoId;
