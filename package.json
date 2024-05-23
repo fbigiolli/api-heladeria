@@ -6,7 +6,7 @@
   "scripts": {
     "prestart": "npm install",
     "start": "node index.js",
-    "test": "jest --coverage --verbose --detectOpenHandles"
+    "test": "jest VehiculosDeUnRepartidor --coverage --verbose --detectOpenHandles"
   },
   "keywords": [
     "swagger"

@@ -32,7 +32,7 @@ exports.repartidoresRepartidorIDVehiculosGET = function(repartidorID) {
       try {
         const repartidorAsociado = await collectionRepartidores.findOne(idRepartidor);
         if (repartidorAsociado) {
-          const vehiculos = await collectionVehiculos.find(idRepartidorAsociado).toArray();
+          const vehiculos = await collectionVehiculos.find(idRepartidorAsociado, { projection: { idRepartidorAsociado: 0 } }).toArray();
           resolve(vehiculos);
         } else {
           const error = new Error(noSeConoceRepartidorErrorDescription);
