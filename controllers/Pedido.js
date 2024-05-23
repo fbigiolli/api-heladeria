@@ -6,7 +6,7 @@ var Pedido = require('../service/PedidoService');
 module.exports.pedidosPOST = function pedidosPOST (req, res, next, body) {
   Pedido.pedidosPOST(body)
     .then(function (response) {
-      utils.writeJson(res, response);
+      res.status(201).send(response);
     })
     .catch(function (response) {
       utils.writeJson(res, response);
@@ -16,7 +16,7 @@ module.exports.pedidosPOST = function pedidosPOST (req, res, next, body) {
 module.exports.pedidosPedidoIdGET = function pedidosPedidoIdGET (req, res, next, pedidoId) {
   Pedido.pedidosPedidoIdGET(pedidoId)
     .then(function (response) {
-      utils.writeJson(res, response);
+      res.status(200).send(response);
     })
     .catch(function (error) {
       res.status(404).send(error.message);
