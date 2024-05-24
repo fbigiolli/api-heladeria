@@ -2,6 +2,8 @@ const dotenv = require('dotenv').config();
 
 const api_user = process.env.DB_USR;
 const api_pw = process.env.DB_PW;
+console.log(api_pw);
+console.log(api_user);
 
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${api_user}:${api_pw}@via-apilia.6idqtd9.mongodb.net/?retryWrites=true&w=majority&appName=Via-Apilia"`;
