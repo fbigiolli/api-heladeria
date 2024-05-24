@@ -61,7 +61,7 @@ exports.pedidosPedidoIdPagoGET = function(pedidoId) {
       try {
         const pago = await collection.findOne({idPedidoAsociado : pedidoId});
         if (pago) {
-          resolve(pago);
+          resolve({"status" : "pago en proceso"});
         }else{
           const responseBody = {"status" : "pendiente de pago"};
           resolve(responseBody);

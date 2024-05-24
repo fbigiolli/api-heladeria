@@ -6,7 +6,7 @@ var Pago = require('../service/PagoService');
 module.exports.pedidosPedidoIdPagarPOST = function pedidosPedidoIdPagarPOST (req, res, next, body, pedidoId) {
   Pago.pedidosPedidoIdPagarPOST(body, pedidoId)
     .then(function (response) {
-      res.status(200).send(response);
+      res.status(202).send(response);
     })
     .catch(function (error) {
       if (error.message === 'Hubo un error al validar los datos de pago.') {

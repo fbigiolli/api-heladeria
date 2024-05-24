@@ -63,6 +63,17 @@ describe('VehiculosDeUnRepartidor', ()=>{
         "rodado":"40"
     };
 
+    const bodyAutoTestDuplicatedPatente = {
+        "tipoDeVehiculo":"Auto",
+        "patente":"KO266BG"
+    };
+
+    const bodyAutoWithDuplicatedPatente = {
+        "tipoDeVehiculo":"Auto",
+        "patente":"KO266BG"
+    };
+
+
     let idRepartidorTest;
     beforeAll(async()=>{
         const response = await request(app).post('/repartidores').send(bodyValidRepartidor);
@@ -192,12 +203,10 @@ describe('VehiculosDeUnRepartidor', ()=>{
     });
 
     describe('RepartidoresRepartidorIDVehiculosPUT', () => {
-        let bodyVehiculoTest;
         let idVehiculoTest;
         beforeAll(async () => {
-            const request = await request(app).post(`/repartidores/${idRepartidorTest}/vehiculos`).send(bodyValidAuto);
-            bodyVehiculoTest = request.body;
-            idVehiculoTest = request.body._id;
+            const response = await request(app).post(`/repartidores/${idRepartidorTest}/vehiculos`).send(bodyValidAuto);
+            idVehiculoTest = response.body._id;
         });
 
         afterAll(async () => {
@@ -214,12 +223,73 @@ describe('VehiculosDeUnRepartidor', ()=>{
             });
 
             it('should respond with 201 status if repartidorID, vehiculoID, and request body are valid', () => {
-                
+                expect(validResponse.status).toBe(201); 
+            });
+
+            it('should respond an array including updated Vehiculo after doing a GET at repartidores/repartidorID/vehiculos', async () => {
+                const response = await request(app).get(`/repartidores/${idRepartidorTest}/vehiculos`);
+                expect(response.body).toContainEqual(validResponse.body);
             });
         });
 
-        describe('Invalid Requests', () => { 
+        describe('Invalid Requests', () => {
+            let idVehiculoTestPatenteDuplicada; 
+            beforeAll(async () => {
+                const response = await request(app).post(`/repartidores/${idRepartidorTest}/vehiculos`).send(bodyAutoTestDuplicatedPatente);
+                idVehiculoTestPatenteDuplicada = response.body._id;
+            });
+    
+            afterAll(async () => {
+                const vehiculoID = idVehiculoTestPatenteDuplicada;
+                const objectId = new ObjectId(vehiculoID);
+                const deletedDocument = await client.db('Via-Apilia').collection('VehiculosRepartidores').findOneAndDelete({_id: objectId});
+                expect(deletedDocument).not.toBe(undefined);
+            });
 
+            it('should respond with 404 status if repartidorID isnt valid', async () => {
+                const response = await request(app).put(`/repartidores/df8a97sd/vehiculos/${idVehiculoTest}`).send(bodyValidAuto);
+                expect(response.status).toBe(404);
+            });
+
+            it('should respond with 404 status if repartidorID isnt valid', async () => {
+                const response = await request(app).put(`/repartidores/${idRepartidorTest}/vehiculos/908sadf890`).send(bodyValidAuto);
+                expect(response.status).toBe(404);
+            });
+
+            it('should respond with 400 status if tipoDeVehiculo is missing', async () => {
+                const response = await request(app).put(`/repartidores/${idRepartidorTest}/vehiculos/${idVehiculoTest}`).send(bodyWithoutTipoDeVehiculo);
+                expect(response.status).toBe(400); 
+            });
+
+            it('should respond with 400 status if tipoDeVehiculo is Auto and patente is missing', async () => {
+                const response = await request(app).put(`/repartidores/${idRepartidorTest}/vehiculos/${idVehiculoTest}`).send(bodyAutoWithoutPatente);
+                expect(response.status).toBe(400); 
+            });
+
+            it('should respond with 400 status if tipoDeVehiculo is Moto and patente is missing', async () => {
+                const response = await request(app).put(`/repartidores/${idRepartidorTest}/vehiculos/${idVehiculoTest}`).send(bodyMotoWithoutPatente);
+                expect(response.status).toBe(400); 
+            });
+
+            it('should respond with 400 status if tipoDeVehiculo is Bici and rodado is missing', async () => {
+                const response = await request(app).put(`/repartidores/${idRepartidorTest}/vehiculos/${idVehiculoTest}`).send(bodyBiciWithoutRodado);
+                expect(response.status).toBe(400); 
+            });
+
+            it('should respond with 400 status if tipoDeVehiculo is Auto or Moto and patente isnt valid', async () => {
+                const response = await request(app).put(`/repartidores/${idRepartidorTest}/vehiculos/${idVehiculoTest}`).send(bodyAutoWithInvalidPatente);
+                expect(response.status).toBe(400); 
+            });
+
+            it('should respond with 400 status if tipoDeVehiculo is Bicicleta and rodado isnt valid', async () => {
+                const response = await request(app).put(`/repartidores/${idRepartidorTest}/vehiculos/${idVehiculoTest}`).send(bodyBiciWithInvalidRodado);
+                expect(response.status).toBe(400); 
+            });
+
+            it('should respond with 400 status if tipoDeVehiculo is Auto or Moto and patente is already registered', async () => {
+                const response = await request(app).put(`/repartidores/${idRepartidorTest}/vehiculos/${idVehiculoTest}`).send(bodyAutoWithDuplicatedPatente);
+                expect(response.status).toBe(400); 
+            });
         });
     });
 });
