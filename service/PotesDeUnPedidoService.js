@@ -22,33 +22,29 @@ const noSePudoValidarRequestBodyErrorDescription = 'Error de validacion en los g
  * pedidoId Integer id del pedido
  * returns List
  **/
-exports.pedidosPedidoIdPotesGET = function(pedidoId) {
+exports.pedidosPedidoIdPotesGET = async function(pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
+    throw new Error(noSeConocePedidoErrorDescription);
   }
 
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId }; 
   const idPedidoAsociado = { idPedidoAsociado: pedidoId }; 
 
-  return new Promise(function(resolve, reject) {
-    (async() =>{
-      try {
-        const pedidoAsociado = await collectionPedidos.findOne(idPedido);
+  try {
+    const pedidoAsociado = await collectionPedidos.findOne(idPedido);
 
-        if (pedidoAsociado) {
-          const potes = await collectionPotes.find(idPedidoAsociado).toArray();
-          resolve(potes);
-        } else {
-          const error = new Error(noSeConocePedidoErrorDescription);
-          reject(error);
-        }
-      } catch (error) {
-        reject(error);
-      }
-    })()
-  });
-}
+    if (pedidoAsociado) {
+      const potes = await collectionPotes.find(idPedidoAsociado).toArray();
+      return potes;
+    } else {
+      throw new Error(noSeConocePedidoErrorDescription);
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 
 /**
@@ -58,44 +54,39 @@ exports.pedidosPedidoIdPotesGET = function(pedidoId) {
  * pedidoId Integer id del pedido
  * returns Pote
  **/
-exports.pedidosPedidoIdPotesPOST = function(body,pedidoId) {
-
+exports.pedidosPedidoIdPotesPOST = async function(body, pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
+    throw new Error(noSeConocePedidoErrorDescription);
   }
 
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId }; 
 
-  return new Promise(function(resolve, reject) {
-  (async () =>{
-    try {
-      const pedidoAsociado = await collectionPedidos.findOne(idPedido);
+  try {
+    const pedidoAsociado = await collectionPedidos.findOne(idPedido);
 
-      // se podria devolver en cual fue el error de validacion
-      const gustosHeladeria = await collectionGustos.find().toArray();  
+    // se podría devolver en cuál fue el error de validación
+    const gustosHeladeria = await collectionGustos.find().toArray();  
 
-      if(! validateRequestBodyPote(body, gustosHeladeria) ){ 
-        return reject(new Error(noSePudoValidarRequestBodyErrorDescription));
-      }
-
-      if (pedidoAsociado) {
-        body.idPedidoAsociado = pedidoId;
-        const result = await collectionPotes.insertOne(body);
-        const insertedId = result.insertedId;
-      
-        const responseBody = { ...body, _id: insertedId };
-        resolve(responseBody);
-      } else {
-        const error = new Error(noSeConocePedidoErrorDescription);
-        reject(error);
-      }
-    } catch (error) {
-      reject(error);
+    if (!validateRequestBodyPote(body, gustosHeladeria)) { 
+      throw new Error(noSePudoValidarRequestBodyErrorDescription);
     }
-  })()
-});
-}
+
+    if (pedidoAsociado) {
+      body.idPedidoAsociado = pedidoId;
+      const result = await collectionPotes.insertOne(body);
+      const insertedId = result.insertedId;
+
+      const responseBody = { ...body, _id: insertedId };
+      return responseBody;
+    } else {
+      throw new Error(noSeConocePedidoErrorDescription);
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 
 /**
@@ -105,27 +96,26 @@ exports.pedidosPedidoIdPotesPOST = function(body,pedidoId) {
  * poteId Integer id del pote
  * no response value expected for this operation
  **/
-exports.pedidosPedidoIdPotesPoteIdDELETE = function(pedidoId,poteId) {
+exports.pedidosPedidoIdPotesPoteIdDELETE = async function(pedidoId, poteId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
+    throw new Error(noSeConocePedidoErrorDescription);
   }
 
   if (!validateMongoID(poteId)) {
-    return Promise.reject(new Error(noSeConocePoteErrorDescription));
+    throw new Error(noSeConocePoteErrorDescription);
   }
   
   const objectId = new ObjectId(poteId);
   const idPote = { _id: objectId , idPedidoAsociado: pedidoId}; 
 
-  return new Promise(function(resolve, reject) {
-    (async() =>{
-      const deletedDocument = await collectionPotes.findOneAndDelete(idPote);
-      if(deletedDocument){
-        resolve()
-      }else{
-        reject(new Error(noSeConocePoteErrorDescription));
-      }
-    })()
-  });
-}
-
+  try {
+    const deletedDocument = await collectionPotes.findOneAndDelete(idPote);
+    if (deletedDocument) {
+      return;
+    } else {
+      throw new Error(noSeConocePoteErrorDescription);
+    }
+  } catch (error) {
+    throw error;
+  }
+};

@@ -14,34 +14,32 @@ const collection = database.collection('Pagos');
  * pedidoId Integer id del pedido
  * no response value expected for this operation
  **/
-exports.pedidosPedidoIdPagarPOST = function(body,pedidoId) {
+exports.pedidosPedidoIdPagarPOST = async function(body, pedidoId) {
   
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error('No se conoce un pedido con tal id.'));
-  }
+    throw new Error('No se conoce un pedido con tal id.');
+  };
 
-  if(!validateRequestBodyPago(body)){
-    return Promise.reject(new Error('Hubo un error al validar los datos de pago.'));
-  }
-  return new Promise(function(resolve, reject) {
+  if (!validateRequestBodyPago(body)) {
+    throw new Error('Hubo un error al validar los datos de pago.');
+  };
+
+  try {
     // CHECK QUE NO HAYA YA UN PAGO ASOCIADO !!
-    (async()=>{
-      // habria que efectuar el pago antes de mandar a la db pago en proceso, para ver si tenemos que rechazarlo de arranque
-      try {
-        // almacenar los datos? o cambiar?
-        body.idPedidoAsociado = pedidoId;
-        await collection.insertOne(body);
+    // habría que efectuar el pago antes de mandar a la db pago en proceso, para ver si tenemos que rechazarlo de arranque
 
-        const { idRepartidorAsociado, ...responseBody } = body;
-        responseBody._id = pedidoId;
-        resolve(responseBody);
-      } catch (error) {
-        reject(error);
-      }
-    })()
-    
-  });
-}
+    // almacenar los datos? o cambiar?
+    body.idPedidoAsociado = pedidoId;
+    await collection.insertOne(body);
+
+    const { idRepartidorAsociado, ...responseBody } = body;
+    responseBody._id = pedidoId;
+    return responseBody;
+
+  } catch (error) {
+    throw error;
+  };
+};
 
 
 /**
@@ -50,26 +48,19 @@ exports.pedidosPedidoIdPagarPOST = function(body,pedidoId) {
  * pedidoId Integer id del pedido
  * returns Pago
  **/
-exports.pedidosPedidoIdPagoGET = function(pedidoId) {
-
+exports.pedidosPedidoIdPagoGET = async function(pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error('No se conoce un pedido con tal id.'));
-  }
+    throw new Error('No se conoce un pedido con tal id.');
+  };
 
-  return new Promise(function(resolve, reject) {
-    (async()=>{ 
-      try {
-        const pago = await collection.findOne({idPedidoAsociado : pedidoId});
-        if (pago) {
-          resolve({"status" : "pago en proceso"});
-        }else{
-          const responseBody = {"status" : "pendiente de pago"};
-          resolve(responseBody);
-        }
-      } catch (error) {
-        reject(error);
-      }
-    })()
-  });
-}
-
+  try {
+    const pago = await collection.findOne({ idPedidoAsociado: pedidoId });
+    if (pago) {
+      return { status: 'pago en proceso' };
+    } else {
+      return { status: 'pendiente de pago' };
+    }
+  } catch (error) {
+    throw error;
+  };
+};

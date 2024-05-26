@@ -18,32 +18,27 @@ const noSeConoceVehiculoErrorDescription = 'No existe un vehiculo asociado a la 
  * repartidorID String 
  * returns List
  **/
-exports.repartidoresRepartidorIDVehiculosGET = function(repartidorID) {
-  if(!validateMongoID(repartidorID)){
-    return Promise.reject(new Error(noSeConoceRepartidorErrorDescription))
+exports.repartidoresRepartidorIDVehiculosGET = async function(repartidorID) {
+  if (!validateMongoID(repartidorID)) {
+    throw new Error(noSeConoceRepartidorErrorDescription);
   }
 
   const objectId = new ObjectId(repartidorID);
-  const idRepartidor = {_id : objectId};
+  const idRepartidor = { _id: objectId };
   const idRepartidorAsociado = { idRepartidorAsociado: repartidorID }; 
 
-  return new Promise(function(resolve, reject) {
-    (async() =>{
-      try {
-        const repartidorAsociado = await collectionRepartidores.findOne(idRepartidor);
-        if (repartidorAsociado) {
-          const vehiculos = await collectionVehiculos.find(idRepartidorAsociado, { projection: { idRepartidorAsociado: 0 } }).toArray();
-          resolve(vehiculos);
-        } else {
-          const error = new Error(noSeConoceRepartidorErrorDescription);
-          reject(error);
-        }
-      } catch (error) {
-        reject(error);
-      }
-    })()
-  });
-}
+  try {
+    const repartidorAsociado = await collectionRepartidores.findOne(idRepartidor);
+    if (repartidorAsociado) {
+      const vehiculos = await collectionVehiculos.find(idRepartidorAsociado, { projection: { idRepartidorAsociado: 0 } }).toArray();
+      return vehiculos;
+    } else {
+      throw new Error(noSeConoceRepartidorErrorDescription);
+    }
+  } catch (error) {
+    throw error;
+  }
+};
 
 
 /**
@@ -53,47 +48,43 @@ exports.repartidoresRepartidorIDVehiculosGET = function(repartidorID) {
  * repartidorID String 
  * returns Vehiculo
  **/
-exports.repartidoresRepartidorIDVehiculosPOST = function(body,repartidorID) {
-  if(!validateMongoID(repartidorID)){
-    return Promise.reject(new Error(noSeConoceRepartidorErrorDescription))
+exports.repartidoresRepartidorIDVehiculosPOST = async function(body, repartidorID) {
+  if (!validateMongoID(repartidorID)) {
+    throw new Error(noSeConoceRepartidorErrorDescription);
   }
 
-  if(!validateRequestBodyVehiculo(body)){
-    return Promise.reject(new Error(noSePudoValidarRequestBodyErrorDescription))
+  if (!validateRequestBodyVehiculo(body)) {
+    throw new Error(noSePudoValidarRequestBodyErrorDescription);
   }
 
   const objectId = new ObjectId(repartidorID);
   const idRepartidor = { _id: objectId }; 
 
-  return new Promise(function(resolve, reject) {
-  (async() =>{
-    try {
-      const repartidorAsignado = await collectionRepartidores.findOne(idRepartidor); 
-      const patenteExistente = await collectionVehiculos.findOne({patente : body.patente});
+  try {
+    const repartidorAsignado = await collectionRepartidores.findOne(idRepartidor); 
+    const patenteExistente = await collectionVehiculos.findOne({ patente: body.patente });
 
-      if (patenteExistente) {
-        return reject(new Error(noSePudoValidarRequestBodyErrorDescription));
-      }
-
-      if (repartidorAsignado) {
-        body.idRepartidorAsociado = repartidorID;
-        const result = await collectionVehiculos.insertOne(body);
-        const insertedId = result.insertedId;
-  
-        const { idRepartidorAsociado, ...responseBody } = body;
-        responseBody._id = insertedId;
-
-        resolve(responseBody);
-      } else {
-        const error = new Error(noSeConoceRepartidorErrorDescription);
-        reject(error);
-      }
-    } catch (error) {
-      reject(error);
+    if (patenteExistente) {
+      throw new Error(noSePudoValidarRequestBodyErrorDescription);
     }
-  })()
-  });
-}
+
+    if (repartidorAsignado) {
+      body.idRepartidorAsociado = repartidorID;
+      const result = await collectionVehiculos.insertOne(body);
+      const insertedId = result.insertedId;
+
+      const { idRepartidorAsociado, ...responseBody } = body;
+      responseBody._id = insertedId;
+
+      return responseBody;
+    } else {
+      throw new Error(noSeConoceRepartidorErrorDescription);
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 
 
@@ -105,17 +96,17 @@ exports.repartidoresRepartidorIDVehiculosPOST = function(body,repartidorID) {
  * vehiculoID String 
  * returns Vehiculo
  **/
-exports.repartidoresRepartidorIDVehiculosVehiculoIDPUT = function(body,repartidorID,vehiculoID) {
-  if(!validateMongoID(repartidorID)){
-    return Promise.reject(new Error(noSeConoceRepartidorErrorDescription))
+exports.repartidoresRepartidorIDVehiculosVehiculoIDPUT = async function(body, repartidorID, vehiculoID) {
+  if (!validateMongoID(repartidorID)) {
+    throw new Error(noSeConoceRepartidorErrorDescription);
   }
 
-  if(!validateMongoID(vehiculoID)){
-    return Promise.reject(new Error(noSeConoceVehiculoErrorDescription))
+  if (!validateMongoID(vehiculoID)) {
+    throw new Error(noSeConoceVehiculoErrorDescription);
   }
 
-  if(!validateRequestBodyVehiculo(body)){
-    return Promise.reject(new Error(noSePudoValidarRequestBodyErrorDescription))
+  if (!validateRequestBodyVehiculo(body)) {
+    throw new Error(noSePudoValidarRequestBodyErrorDescription);
   }
 
   const objectIdRepartidor = new ObjectId(repartidorID);
@@ -124,38 +115,31 @@ exports.repartidoresRepartidorIDVehiculosVehiculoIDPUT = function(body,repartido
   const objectIdVehiculo = new ObjectId(vehiculoID);
   const idVehiculo = { _id: objectIdVehiculo }; 
 
-  return new Promise(function(resolve, reject) {
-    (async()=>{
-      try {
-        const repartidorAsignado = await collectionRepartidores.findOne(idRepartidor);
-        const vehiculoAModificar = await collectionVehiculos.findOne(idVehiculo);
-        const patenteExistente =  await collectionVehiculos.findOne({patente : body.patente});
+  try {
+    const repartidorAsignado = await collectionRepartidores.findOne(idRepartidor);
+    const vehiculoAModificar = await collectionVehiculos.findOne(idVehiculo);
+    const patenteExistente =  await collectionVehiculos.findOne({ patente: body.patente });
 
-        if (patenteExistente && patenteExistente._id != vehiculoID) {
-          return reject(new Error(noSePudoValidarRequestBodyErrorDescription));
-        }
+    if (patenteExistente && patenteExistente._id != vehiculoID) {
+      throw new Error(noSePudoValidarRequestBodyErrorDescription);
+    }
 
-        if(!vehiculoAModificar){
-          return reject(new Error(noSeConoceVehiculoErrorDescription));
-        }
+    if (!vehiculoAModificar) {
+      throw new Error(noSeConoceVehiculoErrorDescription);
+    }
 
-        if (repartidorAsignado) {
-          body.idRepartidorAsociado = repartidorID;
-          await collectionVehiculos.replaceOne(idVehiculo,body);
-    
-          const { idRepartidorAsociado, ...responseBody } = body;
-          responseBody._id = vehiculoID;
-  
-          resolve(responseBody);
-        } else {
-          const error = new Error(noSeConoceRepartidorErrorDescription);
-          reject(error);
-        }
+    if (repartidorAsignado) {
+      body.idRepartidorAsociado = repartidorID;
+      await collectionVehiculos.replaceOne(idVehiculo, body);
 
-      } catch (error) {
-        reject(error);
-      }
-    })()
-    
-  });
-}
+      const { idRepartidorAsociado, ...responseBody } = body;
+      responseBody._id = vehiculoID;
+
+      return responseBody;
+    } else {
+      throw new Error(noSeConoceRepartidorErrorDescription);
+    }
+  } catch (error) {
+    throw error;
+  }
+};

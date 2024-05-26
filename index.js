@@ -2,10 +2,11 @@
 
 var path = require('path');
 var http = require('http');
+const dotenv = require('dotenv').config();
 
 var oas3Tools = require('oas3-tools');
 const { dbDisconnect } = require('./db/dbConnection');
-var serverPort = 8080;
+var serverPort = process.env.PORT || 8080;
 
 // API configuration
 require('./config');

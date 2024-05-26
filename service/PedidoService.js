@@ -16,27 +16,22 @@ const noSePudoValidarRepartidorErrorDescription = 'Hubo un error al validar los 
  * body Pedidos_body  (optional)
  * returns Pedido
  **/
-exports.pedidosPOST = function(body) {
-  
-  return new Promise(async function(resolve, reject) {
-      (async() =>{
-        try { 
-  
-          const repartidorAsignado = await repartidoresCollection.findOne();
-          body.repartidor = repartidorAsignado;
-  
-          const result = await collection.insertOne(body);
-          const insertedId = result.insertedId;
-  
-          const responseBody = { ...body, _id: insertedId };
-  
-          resolve(responseBody);
-        } catch (error) {
-          reject(error);
-        }
-      })()
-    });
-}
+exports.pedidosPOST = async function(body) {
+  try {
+    const repartidorAsignado = await repartidoresCollection.findOne();
+    body.repartidor = repartidorAsignado;
+
+    const result = await collection.insertOne(body);
+    const insertedId = result.insertedId;
+
+    const responseBody = { ...body, _id: insertedId };
+
+    return responseBody;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 
 
@@ -46,32 +41,27 @@ exports.pedidosPOST = function(body) {
  * pedidoId Integer id del pedido
  * returns Pedido
  **/
-exports.pedidosPedidoIdGET = function(pedidoId) {
+exports.pedidosPedidoIdGET = async function(pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
+    throw new Error(noSeConocePedidoErrorDescription);
   }
 
   const objectId = new ObjectId(pedidoId);
-  const idPedido = { _id: objectId }; 
+  const idPedido = { _id: objectId };
 
-  return new Promise((resolve, reject) => {
-    (async () => {
-      try {
-        const pedido = await collection.findOne(idPedido);
-        
-        if (pedido) {
-          resolve(pedido);
-        } else {
-          const error = new Error(noSeConocePedidoErrorDescription);
-          reject(error);
-        }
-      } catch (error) {
-        console.error("Error fetching pedidos:", error);
-        reject(error);
-      }
-    })()
-  });
-}
+  try {
+    const pedido = await collection.findOne(idPedido);
+    
+    if (pedido) {
+      return pedido;
+    } else {
+      throw new Error(noSeConocePedidoErrorDescription);
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 
 /**
@@ -81,31 +71,27 @@ exports.pedidosPedidoIdGET = function(pedidoId) {
  * pedidoId Integer id del pedido
  * returns Pedido
  **/
-exports.pedidosPedidoIdPUT = function(body,pedidoId) {
+exports.pedidosPedidoIdPUT = async function(body, pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
+    throw new Error(noSeConocePedidoErrorDescription);
   }
 
   const objectId = new ObjectId(pedidoId);
-  const idPedido = { _id: objectId }; 
+  const idPedido = { _id: objectId };
 
-  return new Promise(function(resolve, reject) {
-    (async()=>{
-      try {
-        const result = await collection.updateOne(idPedido, {$set : body});
-        if (result.matchedCount === 0) {
-          throw new Error(noSeConocePedidoErrorDescription);
-        }
-  
-        const responseBody = { ...body, _id: pedidoId };
-  
-        resolve(responseBody);
-      } catch (error) {
-        reject(error);
-      }
-    })()
-  });
-}
+  try {
+    const result = await collection.updateOne(idPedido, { $set: body });
+    if (result.matchedCount === 0) {
+      throw new Error(noSeConocePedidoErrorDescription);
+    }
+
+    const responseBody = { ...body, _id: pedidoId };
+
+    return responseBody;
+  } catch (error) {
+    throw error;
+  }
+};
 
 
 /**
@@ -114,30 +100,27 @@ exports.pedidosPedidoIdPUT = function(body,pedidoId) {
  * pedidoId Integer id del pedido
  * no response value expected for this operation
  **/
-exports.pedidosPedidoIdRepartidorDELETE = function(pedidoId) {
+exports.pedidosPedidoIdRepartidorDELETE = async function(pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
+    throw new Error(noSeConocePedidoErrorDescription);
   }
 
   const objectId = new ObjectId(pedidoId);
-  const idPedido = { _id: objectId }; 
+  const idPedido = { _id: objectId };
 
-  return new Promise(function(resolve, reject) {
-    (async () => {
-      try {
-        const result = await collection.updateOne(idPedido, { $set: { repartidor: {} } });
-        // se podria incluir otro error en caso de que no modifique porque el request body es igual a los datos de la db
-        if (result.matchedCount === 0) {
-          throw new Error(noSeConoceRepartidorErrorDescription);
-        }
-        
-        resolve();
-      } catch (error) {
-        reject(error);
-      }
-    })()
-  });
-}
+  try {
+    const result = await collection.updateOne(idPedido, { $set: { repartidor: {} } });
+    // se podría incluir otro error en caso de que no modifique porque el request body es igual a los datos de la db
+    if (result.matchedCount === 0) {
+      throw new Error(noSeConoceRepartidorErrorDescription);
+    }
+    
+    return;
+  } catch (error) {
+    throw error;
+  }
+};
+
 
 
 /**
@@ -147,13 +130,13 @@ exports.pedidosPedidoIdRepartidorDELETE = function(pedidoId) {
  * pedidoId Integer id del pedido
  * returns Pedido
  **/
-exports.pedidosPedidoIdRepartidorPUT = function(body,pedidoId) {
+exports.pedidosPedidoIdRepartidorPUT = async function(body, pedidoId) {
   if (!validateMongoID(pedidoId)) {
-    return Promise.reject(new Error(noSeConocePedidoErrorDescription));
+    throw new Error(noSeConocePedidoErrorDescription);
   }
 
   if (!validateMongoID(body.id_repartidor)) {
-    return Promise.reject(new Error(noSePudoValidarRepartidorErrorDescription));
+    throw new Error(noSePudoValidarRepartidorErrorDescription);
   }
 
   const objectIdPedido = new ObjectId(pedidoId);
@@ -162,29 +145,24 @@ exports.pedidosPedidoIdRepartidorPUT = function(body,pedidoId) {
   const objectIdRepartidor = new ObjectId(body.id_repartidor);
   const idRepartidor = { _id: objectIdRepartidor }; 
 
-  return new Promise(function(resolve, reject) {
-    (async () => {
-      try {
-        const repartidor = await repartidoresCollection.findOne(idRepartidor);
-        if (!repartidor) {
-          throw new Error(noSePudoValidarRepartidorErrorDescription);
-        }
-  
-        const result = await collection.findOneAndUpdate(
-          idPedido,
-          { $set: { repartidor: repartidor } },
-          { returnOriginal: false }
-        );
+  try {
+    const repartidor = await repartidoresCollection.findOne(idRepartidor);
+    if (!repartidor) {
+      throw new Error(noSePudoValidarRepartidorErrorDescription);
+    }
 
-        if (!result) {
-          throw new Error(noSeConocePedidoErrorDescription);
-        }
-  
-        resolve(result);
-      } catch (error) {
-        reject(error);
-      }
-    })()
-  });
-}
+    const result = await collection.findOneAndUpdate(
+      idPedido,
+      { $set: { repartidor: repartidor } },
+      { returnOriginal: false }
+    );
 
+    if (!result) {
+      throw new Error(noSeConocePedidoErrorDescription);
+    }
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};

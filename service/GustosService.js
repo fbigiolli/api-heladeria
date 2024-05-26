@@ -12,24 +12,18 @@ const collection = database.collection('Gustos');
 * tipo TipoDeGusto  (optional)
 * returns List
 **/
-exports.gustosGET = function(tipo) {
+exports.gustosGET = async function(tipo) {
   // si no hay query paso filtro vacio
   const query = tipo ? { tipo: tipo } : {};
-  const projection = { _id: 0} // saco la id de la db
-  
-  return new Promise(function(resolve, reject) {
-    (async () =>{
-      try {
-        const gustos = await collection.find(query).project(projection).toArray();
-        resolve(gustos);
-      } catch (error) {
-        console.error("Error fetching gustos:", error);
-        reject(error);
-      }
-    })()
-  });
-};
+  const projection = { _id: 0 }; // saco la id de la db
 
+  try {
+    const gustos = await collection.find(query).project(projection).toArray();
+    return gustos;
+  } catch (error) {
+    throw error;
+  }
+};
 
 /**
  * Ver un gusto particular
@@ -37,25 +31,19 @@ exports.gustosGET = function(tipo) {
  * gustoId String id del gusto
  * returns Gusto
  **/
-exports.gustosGustoIdGET = function(gustoId) {
+exports.gustosGustoIdGET = async function(gustoId) {
   const idGusto = { id: gustoId }; 
-  const options = { projection: { _id:0 }}; // saco la id de la db
+  const options = { projection: { _id: 0 } }; // saco la id de la db
 
-  return new Promise((resolve, reject) => {
-    (async () => {
-      try {
-        const gusto = await collection.findOne(idGusto,options);
-        
-        if (gusto) {
-          resolve(gusto);
-        } else {
-          const error = new Error('Gusto no encontrado');
-          reject(error);
-        }
-      } catch (error) {
-        console.error("Error fetching gustos:", error);
-        reject(error);
-      }
-    })()
-  });
-}
+  try {
+    const gusto = await collection.findOne(idGusto, options);
+    
+    if (gusto) {
+      return gusto;
+    } else {
+      throw new Error('Gusto no encontrado');
+    }
+  } catch (error) {
+    throw error;
+  }
+};
