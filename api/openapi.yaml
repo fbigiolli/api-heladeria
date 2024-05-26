@@ -5,13 +5,13 @@ info:
     API de la Heladería Via Apilia. A través de esta API se pueden consultar
     los gustos de helado y realizar pedidos.
   contact:
-    email: devs@heladeria-apilia.com
+    email: felipebigiolli@gmail.com
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
 servers:
-- url: https://api.heladeria-apilia.com
+- url: https://via-apilia.up.railway.app/
 paths:
   /repartidores:
     get:
