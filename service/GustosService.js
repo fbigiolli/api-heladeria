@@ -17,12 +17,8 @@ exports.gustosGET = async function(tipo) {
   const query = tipo ? { tipo: tipo } : {};
   const projection = { _id: 0 }; // saco la id de la db
 
-  try {
-    const gustos = await collection.find(query).project(projection).toArray();
-    return gustos;
-  } catch (error) {
-    throw error;
-  }
+  const gustos = await collection.find(query).project(projection).toArray();
+  return gustos;
 };
 
 /**
@@ -35,15 +31,11 @@ exports.gustosGustoIdGET = async function(gustoId) {
   const idGusto = { id: gustoId }; 
   const options = { projection: { _id: 0 } }; // saco la id de la db
 
-  try {
-    const gusto = await collection.findOne(idGusto, options);
-    
-    if (gusto) {
-      return gusto;
-    } else {
-      throw new Error('Gusto no encontrado');
-    }
-  } catch (error) {
-    throw error;
+  const gusto = await collection.findOne(idGusto, options);
+  
+  if (gusto) {
+    return gusto;
+  } else {
+    throw new Error('Gusto no encontrado');
   }
 };

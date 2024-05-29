@@ -24,21 +24,16 @@ exports.pedidosPedidoIdPagarPOST = async function(body, pedidoId) {
     throw new Error('Hubo un error al validar los datos de pago.');
   };
 
-  try {
-    // CHECK QUE NO HAYA YA UN PAGO ASOCIADO !!
-    // habría que efectuar el pago antes de mandar a la db pago en proceso, para ver si tenemos que rechazarlo de arranque
+  // CHECK QUE NO HAYA YA UN PAGO ASOCIADO !!
+  // habría que efectuar el pago antes de mandar a la db pago en proceso, para ver si tenemos que rechazarlo de arranque
 
-    // almacenar los datos? o cambiar?
-    body.idPedidoAsociado = pedidoId;
-    await collection.insertOne(body);
+  // almacenar los datos? o cambiar?
+  body.idPedidoAsociado = pedidoId;
+  await collection.insertOne(body);
 
-    const { idRepartidorAsociado, ...responseBody } = body;
-    responseBody._id = pedidoId;
-    return responseBody;
-
-  } catch (error) {
-    throw error;
-  };
+  const { idRepartidorAsociado, ...responseBody } = body;
+  responseBody._id = pedidoId;
+  return responseBody;
 };
 
 
@@ -53,14 +48,10 @@ exports.pedidosPedidoIdPagoGET = async function(pedidoId) {
     throw new Error('No se conoce un pedido con tal id.');
   };
 
-  try {
-    const pago = await collection.findOne({ idPedidoAsociado: pedidoId });
-    if (pago) {
-      return { status: 'pago en proceso' };
-    } else {
-      return { status: 'pendiente de pago' };
-    }
-  } catch (error) {
-    throw error;
-  };
+  const pago = await collection.findOne({ idPedidoAsociado: pedidoId });
+  if (pago) {
+    return { status: 'pago en proceso' };
+  } else {
+    return { status: 'pendiente de pago' };
+  }
 };

@@ -17,19 +17,15 @@ const noSePudoValidarRepartidorErrorDescription = 'Hubo un error al validar los 
  * returns Pedido
  **/
 exports.pedidosPOST = async function(body) {
-  try {
-    const repartidorAsignado = await repartidoresCollection.findOne();
-    body.repartidor = repartidorAsignado;
+  const repartidorAsignado = await repartidoresCollection.findOne();
+  body.repartidor = repartidorAsignado;
 
-    const result = await collection.insertOne(body);
-    const insertedId = result.insertedId;
+  const result = await collection.insertOne(body);
+  const insertedId = result.insertedId;
 
-    const responseBody = { ...body, _id: insertedId };
+  const responseBody = { ...body, _id: insertedId };
 
-    return responseBody;
-  } catch (error) {
-    throw error;
-  }
+  return responseBody;
 };
 
 
@@ -49,16 +45,12 @@ exports.pedidosPedidoIdGET = async function(pedidoId) {
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId };
 
-  try {
-    const pedido = await collection.findOne(idPedido);
-    
-    if (pedido) {
-      return pedido;
-    } else {
-      throw new Error(noSeConocePedidoErrorDescription);
-    }
-  } catch (error) {
-    throw error;
+  const pedido = await collection.findOne(idPedido);
+  
+  if (pedido) {
+    return pedido;
+  } else {
+    throw new Error(noSeConocePedidoErrorDescription);
   }
 };
 
@@ -79,18 +71,14 @@ exports.pedidosPedidoIdPUT = async function(body, pedidoId) {
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId };
 
-  try {
-    const result = await collection.updateOne(idPedido, { $set: body });
-    if (result.matchedCount === 0) {
-      throw new Error(noSeConocePedidoErrorDescription);
-    }
-
-    const responseBody = { ...body, _id: pedidoId };
-
-    return responseBody;
-  } catch (error) {
-    throw error;
+  const result = await collection.updateOne(idPedido, { $set: body });
+  if (result.matchedCount === 0) {
+    throw new Error(noSeConocePedidoErrorDescription);
   }
+
+  const responseBody = { ...body, _id: pedidoId };
+
+  return responseBody;
 };
 
 
@@ -108,17 +96,13 @@ exports.pedidosPedidoIdRepartidorDELETE = async function(pedidoId) {
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId };
 
-  try {
-    const result = await collection.updateOne(idPedido, { $set: { repartidor: {} } });
-    // se podría incluir otro error en caso de que no modifique porque el request body es igual a los datos de la db
-    if (result.matchedCount === 0) {
-      throw new Error(noSeConoceRepartidorErrorDescription);
-    }
-    
-    return;
-  } catch (error) {
-    throw error;
+  const result = await collection.updateOne(idPedido, { $set: { repartidor: {} } });
+  // se podría incluir otro error en caso de que no modifique porque el request body es igual a los datos de la db
+  if (result.matchedCount === 0) {
+    throw new Error(noSeConoceRepartidorErrorDescription);
   }
+  
+  return;
 };
 
 
@@ -145,24 +129,20 @@ exports.pedidosPedidoIdRepartidorPUT = async function(body, pedidoId) {
   const objectIdRepartidor = new ObjectId(body.id_repartidor);
   const idRepartidor = { _id: objectIdRepartidor }; 
 
-  try {
-    const repartidor = await repartidoresCollection.findOne(idRepartidor);
-    if (!repartidor) {
-      throw new Error(noSePudoValidarRepartidorErrorDescription);
-    }
-
-    const result = await collection.findOneAndUpdate(
-      idPedido,
-      { $set: { repartidor: repartidor } },
-      { returnOriginal: false }
-    );
-
-    if (!result) {
-      throw new Error(noSeConocePedidoErrorDescription);
-    }
-
-    return result;
-  } catch (error) {
-    throw error;
+  const repartidor = await repartidoresCollection.findOne(idRepartidor);
+  if (!repartidor) {
+    throw new Error(noSePudoValidarRepartidorErrorDescription);
   }
+
+  const result = await collection.findOneAndUpdate(
+    idPedido,
+    { $set: { repartidor: repartidor } },
+    { returnOriginal: false }
+  );
+
+  if (!result) {
+    throw new Error(noSeConocePedidoErrorDescription);
+  }
+
+  return result;
 };

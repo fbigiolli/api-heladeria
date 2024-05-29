@@ -18,8 +18,12 @@ module.exports.gustosGustoIdGET = function gustosGustoIdGET (req, res, next, gus
     .then(function (response) {
       utils.writeJson(res, response);
     })
-    .catch(function () {
-      res.status(404).send('No se conoce un gusto con tal id');
+    .catch(function(error) {
+      if (error.message === 'Gusto no encontrado') {
+        res.status(404).send('No se conoce un gusto con tal id');
+      } else {
+        res.status(500).send('Error interno del servidor');
+      }
     });
 };
 

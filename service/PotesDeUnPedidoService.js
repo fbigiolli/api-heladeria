@@ -31,17 +31,13 @@ exports.pedidosPedidoIdPotesGET = async function(pedidoId) {
   const idPedido = { _id: objectId }; 
   const idPedidoAsociado = { idPedidoAsociado: pedidoId }; 
 
-  try {
-    const pedidoAsociado = await collectionPedidos.findOne(idPedido);
+  const pedidoAsociado = await collectionPedidos.findOne(idPedido);
 
-    if (pedidoAsociado) {
-      const potes = await collectionPotes.find(idPedidoAsociado).toArray();
-      return potes;
-    } else {
-      throw new Error(noSeConocePedidoErrorDescription);
-    }
-  } catch (error) {
-    throw error;
+  if (pedidoAsociado) {
+    const potes = await collectionPotes.find(idPedidoAsociado).toArray();
+    return potes;
+  } else {
+    throw new Error(noSeConocePedidoErrorDescription);
   }
 };
 
@@ -62,28 +58,24 @@ exports.pedidosPedidoIdPotesPOST = async function(body, pedidoId) {
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId }; 
 
-  try {
-    const pedidoAsociado = await collectionPedidos.findOne(idPedido);
+  const pedidoAsociado = await collectionPedidos.findOne(idPedido);
 
-    // se podría devolver en cuál fue el error de validación
-    const gustosHeladeria = await collectionGustos.find().toArray();  
+  // se podría devolver en cuál fue el error de validación
+  const gustosHeladeria = await collectionGustos.find().toArray();  
 
-    if (!validateRequestBodyPote(body, gustosHeladeria)) { 
-      throw new Error(noSePudoValidarRequestBodyErrorDescription);
-    }
+  if (!validateRequestBodyPote(body, gustosHeladeria)) { 
+    throw new Error(noSePudoValidarRequestBodyErrorDescription);
+  }
 
-    if (pedidoAsociado) {
-      body.idPedidoAsociado = pedidoId;
-      const result = await collectionPotes.insertOne(body);
-      const insertedId = result.insertedId;
+  if (pedidoAsociado) {
+    body.idPedidoAsociado = pedidoId;
+    const result = await collectionPotes.insertOne(body);
+    const insertedId = result.insertedId;
 
-      const responseBody = { ...body, _id: insertedId };
-      return responseBody;
-    } else {
-      throw new Error(noSeConocePedidoErrorDescription);
-    }
-  } catch (error) {
-    throw error;
+    const responseBody = { ...body, _id: insertedId };
+    return responseBody;
+  } else {
+    throw new Error(noSeConocePedidoErrorDescription);
   }
 };
 
@@ -108,14 +100,10 @@ exports.pedidosPedidoIdPotesPoteIdDELETE = async function(pedidoId, poteId) {
   const objectId = new ObjectId(poteId);
   const idPote = { _id: objectId , idPedidoAsociado: pedidoId}; 
 
-  try {
-    const deletedDocument = await collectionPotes.findOneAndDelete(idPote);
-    if (deletedDocument) {
-      return;
-    } else {
-      throw new Error(noSeConocePoteErrorDescription);
-    }
-  } catch (error) {
-    throw error;
+  const deletedDocument = await collectionPotes.findOneAndDelete(idPote);
+  if (deletedDocument) {
+    return;
+  } else {
+    throw new Error(noSeConocePoteErrorDescription);
   }
 };
