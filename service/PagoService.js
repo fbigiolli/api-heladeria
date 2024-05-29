@@ -7,6 +7,7 @@ const database = client.db('Via-Apilia');
 const collection = database.collection('Pagos');
 
 
+const noSeConocePedidoErrorDescription = 'No se conoce un pedido con tal id.';
 /**
  * Inicia el pago del pedido
  *
@@ -16,9 +17,7 @@ const collection = database.collection('Pagos');
  **/
 exports.pedidosPedidoIdPagarPOST = async function(body, pedidoId) {
   
-  if (!validateMongoID(pedidoId)) {
-    throw new Error('No se conoce un pedido con tal id.');
-  };
+  validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
   if (!validateRequestBodyPago(body)) {
     throw new Error('Hubo un error al validar los datos de pago.');
@@ -44,9 +43,7 @@ exports.pedidosPedidoIdPagarPOST = async function(body, pedidoId) {
  * returns Pago
  **/
 exports.pedidosPedidoIdPagoGET = async function(pedidoId) {
-  if (!validateMongoID(pedidoId)) {
-    throw new Error('No se conoce un pedido con tal id.');
-  };
+  validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
   const pago = await collection.findOne({ idPedidoAsociado: pedidoId });
   if (pago) {

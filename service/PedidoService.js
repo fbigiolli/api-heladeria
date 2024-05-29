@@ -38,9 +38,7 @@ exports.pedidosPOST = async function(body) {
  * returns Pedido
  **/
 exports.pedidosPedidoIdGET = async function(pedidoId) {
-  if (!validateMongoID(pedidoId)) {
-    throw new Error(noSeConocePedidoErrorDescription);
-  }
+  validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId };
@@ -64,9 +62,7 @@ exports.pedidosPedidoIdGET = async function(pedidoId) {
  * returns Pedido
  **/
 exports.pedidosPedidoIdPUT = async function(body, pedidoId) {
-  if (!validateMongoID(pedidoId)) {
-    throw new Error(noSeConocePedidoErrorDescription);
-  }
+  validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId };
@@ -89,9 +85,7 @@ exports.pedidosPedidoIdPUT = async function(body, pedidoId) {
  * no response value expected for this operation
  **/
 exports.pedidosPedidoIdRepartidorDELETE = async function(pedidoId) {
-  if (!validateMongoID(pedidoId)) {
-    throw new Error(noSeConocePedidoErrorDescription);
-  }
+  validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId };
@@ -115,13 +109,9 @@ exports.pedidosPedidoIdRepartidorDELETE = async function(pedidoId) {
  * returns Pedido
  **/
 exports.pedidosPedidoIdRepartidorPUT = async function(body, pedidoId) {
-  if (!validateMongoID(pedidoId)) {
-    throw new Error(noSeConocePedidoErrorDescription);
-  }
+  validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
-  if (!validateMongoID(body.id_repartidor)) {
-    throw new Error(noSePudoValidarRepartidorErrorDescription);
-  }
+  validateMongoID(body.id_repartidor, noSePudoValidarRepartidorErrorDescription) 
 
   const objectIdPedido = new ObjectId(pedidoId);
   const idPedido = { _id: objectIdPedido }; 

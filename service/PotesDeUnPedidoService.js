@@ -23,9 +23,7 @@ const noSePudoValidarRequestBodyErrorDescription = 'Error de validacion en los g
  * returns List
  **/
 exports.pedidosPedidoIdPotesGET = async function(pedidoId) {
-  if (!validateMongoID(pedidoId)) {
-    throw new Error(noSeConocePedidoErrorDescription);
-  }
+  validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId }; 
@@ -51,9 +49,7 @@ exports.pedidosPedidoIdPotesGET = async function(pedidoId) {
  * returns Pote
  **/
 exports.pedidosPedidoIdPotesPOST = async function(body, pedidoId) {
-  if (!validateMongoID(pedidoId)) {
-    throw new Error(noSeConocePedidoErrorDescription);
-  }
+  validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId }; 
@@ -89,13 +85,9 @@ exports.pedidosPedidoIdPotesPOST = async function(body, pedidoId) {
  * no response value expected for this operation
  **/
 exports.pedidosPedidoIdPotesPoteIdDELETE = async function(pedidoId, poteId) {
-  if (!validateMongoID(pedidoId)) {
-    throw new Error(noSeConocePedidoErrorDescription);
-  }
+  validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
-  if (!validateMongoID(poteId)) {
-    throw new Error(noSeConocePoteErrorDescription);
-  }
+  validateMongoID(poteId, noSeConocePoteErrorDescription);
   
   const objectId = new ObjectId(poteId);
   const idPote = { _id: objectId , idPedidoAsociado: pedidoId}; 

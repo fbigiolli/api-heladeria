@@ -19,9 +19,7 @@ const noSeConoceVehiculoErrorDescription = 'No existe un vehiculo asociado a la 
  * returns List
  **/
 exports.repartidoresRepartidorIDVehiculosGET = async function(repartidorID) {
-  if (!validateMongoID(repartidorID)) {
-    throw new Error(noSeConoceRepartidorErrorDescription);
-  }
+  validateMongoID(repartidorID, noSeConoceRepartidorErrorDescription);
 
   const objectId = new ObjectId(repartidorID);
   const idRepartidor = { _id: objectId };
@@ -45,9 +43,7 @@ exports.repartidoresRepartidorIDVehiculosGET = async function(repartidorID) {
  * returns Vehiculo
  **/
 exports.repartidoresRepartidorIDVehiculosPOST = async function(body, repartidorID) {
-  if (!validateMongoID(repartidorID)) {
-    throw new Error(noSeConoceRepartidorErrorDescription);
-  }
+  validateMongoID(repartidorID, noSeConoceRepartidorErrorDescription);
 
   if (!validateRequestBodyVehiculo(body)) {
     throw new Error(noSePudoValidarRequestBodyErrorDescription);
@@ -89,13 +85,9 @@ exports.repartidoresRepartidorIDVehiculosPOST = async function(body, repartidorI
  * returns Vehiculo
  **/
 exports.repartidoresRepartidorIDVehiculosVehiculoIDPUT = async function(body, repartidorID, vehiculoID) {
-  if (!validateMongoID(repartidorID)) {
-    throw new Error(noSeConoceRepartidorErrorDescription);
-  }
+  validateMongoID(repartidorID, noSeConoceRepartidorErrorDescription);
 
-  if (!validateMongoID(vehiculoID)) {
-    throw new Error(noSeConoceVehiculoErrorDescription);
-  }
+  validateMongoID(vehiculoID, noSeConoceVehiculoErrorDescription);
 
   if (!validateRequestBodyVehiculo(body)) {
     throw new Error(noSePudoValidarRequestBodyErrorDescription);

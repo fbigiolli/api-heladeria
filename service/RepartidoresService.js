@@ -7,6 +7,8 @@ const { validateRequestBodyRepartidor } = require('../utils/validation/validateR
 const database = client.db('Via-Apilia');
 const collection = database.collection('Repartidores');
 
+const noSeConoceRepartidorErrorDescription = 'No se conoce un repartidor con tal id.';
+
 /**
  * Listar los repartidores de la heladeria
  *
@@ -45,7 +47,6 @@ exports.repartidoresPOST = async function(body) {
   return responseBody;
 };
 
-
 /**
  * Elimina el repartidor asociado a esta ID
  *
@@ -53,9 +54,8 @@ exports.repartidoresPOST = async function(body) {
  * no response value expected for this operation
  **/
 exports.repartidoresRepartidorIDDELETE = async function(repartidorID) {
-  if (!validateMongoID(repartidorID)) {
-    throw new Error('No se conoce un repartidor con tal id.');
-  }
+  validateMongoID(repartidorID, noSeConoceRepartidorErrorDescription);
+
   const objectId = new ObjectId(repartidorID);
   const idRepartidor = { _id: objectId }; 
 
@@ -76,9 +76,7 @@ exports.repartidoresRepartidorIDDELETE = async function(repartidorID) {
  * returns Repartidor
  **/
 exports.repartidoresRepartidorIDGET = async function(repartidorID) {
-  if (!validateMongoID(repartidorID)) {
-    throw new Error('No se conoce un repartidor con tal id.');
-  }
+  validateMongoID(repartidorID, noSeConoceRepartidorErrorDescription);
 
   const objectId = new ObjectId(repartidorID);
   const idRepartidor = { _id: objectId }; 
@@ -102,9 +100,7 @@ exports.repartidoresRepartidorIDGET = async function(repartidorID) {
  * returns Repartidor
  **/
 exports.repartidoresRepartidorIDPUT = async function(body, repartidorID) {
-  if (!validateMongoID(repartidorID)) {
-    throw new Error('No se conoce un repartidor con tal id.');
-  }
+  validateMongoID(repartidorID, noSeConoceRepartidorErrorDescription);
 
   if (!validateRequestBodyRepartidor(body)) {
     throw new Error('Request Body no válido');

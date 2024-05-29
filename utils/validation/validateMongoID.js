@@ -1,5 +1,8 @@
-exports.validateMongoID = function validateMongoID(mongoID) {
+exports.validateMongoID = function validateMongoID(mongoID, anErrorDescription) {
     const regex = /^[0-9a-fA-F]{24}$/;
-    return regex.test(mongoID);
+
+    if (!regex.test(mongoID)) {
+      throw new Error(anErrorDescription);
+    }; 
   }
 
