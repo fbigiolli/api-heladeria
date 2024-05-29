@@ -45,9 +45,7 @@ exports.repartidoresRepartidorIDVehiculosGET = async function(repartidorID) {
 exports.repartidoresRepartidorIDVehiculosPOST = async function(body, repartidorID) {
   validateMongoID(repartidorID, noSeConoceRepartidorErrorDescription);
 
-  if (!validateRequestBodyVehiculo(body)) {
-    throw new Error(noSePudoValidarRequestBodyErrorDescription);
-  }
+  validateRequestBodyVehiculo(body);
 
   const objectId = new ObjectId(repartidorID);
   const idRepartidor = { _id: objectId }; 
@@ -89,9 +87,7 @@ exports.repartidoresRepartidorIDVehiculosVehiculoIDPUT = async function(body, re
 
   validateMongoID(vehiculoID, noSeConoceVehiculoErrorDescription);
 
-  if (!validateRequestBodyVehiculo(body)) {
-    throw new Error(noSePudoValidarRequestBodyErrorDescription);
-  }
+  validateRequestBodyVehiculo(body);
 
   const objectIdRepartidor = new ObjectId(repartidorID);
   const idRepartidor = { _id: objectIdRepartidor }; 

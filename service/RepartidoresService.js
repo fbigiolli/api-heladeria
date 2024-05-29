@@ -30,11 +30,10 @@ exports.repartidoresGET = async function(edad) {
  * returns Repartidor
  **/
 exports.repartidoresPOST = async function(body) {
-  if (!validateRequestBodyRepartidor(body)) {
-    throw new Error('Cuerpo no válido');
-  }
+  validateRequestBodyRepartidor(body);
 
   const existingRepartidor = await collection.findOne({ cuil: body.cuil });
+
   if (existingRepartidor) {
     throw new Error('El CUIL ya está asignado a otro repartidor');
   }
@@ -102,9 +101,7 @@ exports.repartidoresRepartidorIDGET = async function(repartidorID) {
 exports.repartidoresRepartidorIDPUT = async function(body, repartidorID) {
   validateMongoID(repartidorID, noSeConoceRepartidorErrorDescription);
 
-  if (!validateRequestBodyRepartidor(body)) {
-    throw new Error('Request Body no válido');
-  }
+  validateRequestBodyRepartidor(body);
 
   const objectId = new ObjectId(repartidorID);
   const idRepartidor = { _id: objectId }; 

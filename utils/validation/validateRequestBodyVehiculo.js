@@ -1,3 +1,5 @@
+const noSePudoValidarRequestBodyErrorDescription = 'Hubo un error de validacion con alguno de los datos.';
+
 exports.validateRequestBodyVehiculo = function validateRequestBodyVehiculo(body) {
     // swagger verifica que cumpla estructuralmente todo, si llega aca ya tiene los 2 cuerpos del body
 
@@ -5,11 +7,15 @@ exports.validateRequestBodyVehiculo = function validateRequestBodyVehiculo(body)
     const regexPatenteNueva = /^[a-zA-Z]{2}\d{3}[a-zA-Z]{2}$/;
 
     if (body.tipoDeVehiculo != 'Bicicleta') {
-        return regexPatenteNueva.test(body.patente) || regexPatenteVieja.test(body.patente)
+        if(!(regexPatenteNueva.test(body.patente) || regexPatenteVieja.test(body.patente))){
+            throw new Error(noSePudoValidarRequestBodyErrorDescription);
+        };
     } else {
         const rodadoInRange = body.rodado >= 26 && body.rodado <= 29;
         const hasPatente = 'patente' in body;
         
-        return rodadoInRange && !hasPatente;
+        if(!(rodadoInRange && !hasPatente)){
+            throw new Error(noSePudoValidarRequestBodyErrorDescription);
+        };
     }
 }

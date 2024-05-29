@@ -30,6 +30,7 @@ exports.validateRequestBodyPote = function validateRequestBodyPote(body, gustosA
         }
     });
 
-
-    return numberOfGustosIsValid && allGustosAreUnique && allGustosAreAvailable;
+    if(!(numberOfGustosIsValid && allGustosAreUnique && allGustosAreAvailable)){
+        throw new Error('Error de validacion en los gustos.');
+    };
 }

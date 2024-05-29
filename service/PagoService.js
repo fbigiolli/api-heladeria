@@ -19,9 +19,7 @@ exports.pedidosPedidoIdPagarPOST = async function(body, pedidoId) {
   
   validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
-  if (!validateRequestBodyPago(body)) {
-    throw new Error('Hubo un error al validar los datos de pago.');
-  };
+  validateRequestBodyPago(body);
 
   // CHECK QUE NO HAYA YA UN PAGO ASOCIADO !!
   // habría que efectuar el pago antes de mandar a la db pago en proceso, para ver si tenemos que rechazarlo de arranque

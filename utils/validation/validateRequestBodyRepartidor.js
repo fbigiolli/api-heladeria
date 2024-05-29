@@ -9,5 +9,7 @@ exports.validateRequestBodyRepartidor = function validateRequestBodyRepartidor(b
     const testCUIL = regexValidCUIL.test(body.cuil);
     const testEdad = body.edad > 18 && body.edad < 100;
 
-    return testNombre && testApellido && testCUIL && testEdad;
+    if(!(testNombre && testApellido && testCUIL && testEdad)){
+        throw new Error('Request Body no válido');
+    };
 }

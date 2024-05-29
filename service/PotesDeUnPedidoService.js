@@ -51,17 +51,15 @@ exports.pedidosPedidoIdPotesGET = async function(pedidoId) {
 exports.pedidosPedidoIdPotesPOST = async function(body, pedidoId) {
   validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
 
+  // se podría devolver en cuál fue el error de validación
+  const gustosHeladeria = await collectionGustos.find().toArray();  
+
+  validateRequestBodyPote(body, gustosHeladeria);
+
   const objectId = new ObjectId(pedidoId);
   const idPedido = { _id: objectId }; 
 
   const pedidoAsociado = await collectionPedidos.findOne(idPedido);
-
-  // se podría devolver en cuál fue el error de validación
-  const gustosHeladeria = await collectionGustos.find().toArray();  
-
-  if (!validateRequestBodyPote(body, gustosHeladeria)) { 
-    throw new Error(noSePudoValidarRequestBodyErrorDescription);
-  }
 
   if (pedidoAsociado) {
     body.idPedidoAsociado = pedidoId;
