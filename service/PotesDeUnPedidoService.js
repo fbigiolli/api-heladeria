@@ -84,7 +84,6 @@ exports.pedidosPedidoIdPotesPOST = async function(body, pedidoId) {
  **/
 exports.pedidosPedidoIdPotesPoteIdDELETE = async function(pedidoId, poteId) {
   validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
-
   validateMongoID(poteId, noSeConocePoteErrorDescription);
   
   const objectId = new ObjectId(poteId);

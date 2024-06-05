@@ -3,6 +3,7 @@
 var path = require('path');
 var http = require('http');
 const dotenv = require('dotenv').config();
+const cors = require('cors');
 
 var oas3Tools = require('oas3-tools');
 const { dbDisconnect } = require('./db/dbConnection');
@@ -20,6 +21,8 @@ var options = {
 
 var expressAppConfig = oas3Tools.expressAppConfig(path.join(__dirname, 'api/openapi.yaml'), options);
 var app = expressAppConfig.getApp();
+
+app.use(cors());
 
 module.exports = app;
 

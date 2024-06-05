@@ -51,16 +51,25 @@ describe('Pago', () => {
     
     let pedidoTest;
     let pedidoID;
+    let pedido2ID;
     beforeAll(async () => {
         pedidoTest = await request(app).post('/pedidos').send(validBodyPedido);
         expect(pedidoTest.status).toBe(201);
         pedidoID = pedidoTest.body._id;
+
+        pedido2Test = await request(app).post('/pedidos').send(validBodyPedido);
+        expect(pedido2Test.status).toBe(201);
+        pedido2ID = pedido2Test.body._id;
     });
 
     afterAll(async() =>{
         const objectId = new ObjectId(pedidoID);
         const deletedDocument = await client.db('Via-Apilia').collection('Pedidos').findOneAndDelete({_id: objectId});
         expect(deletedDocument).not.toBe(undefined);
+
+        const objectId2 = new ObjectId(pedido2ID);
+        const deletedDocument2 = await client.db('Via-Apilia').collection('Pedidos').findOneAndDelete({_id: objectId2});
+        expect(deletedDocument2).not.toBe(undefined);
     });
 
     describe('PedidosPedidoIDPagoGET', () => {
@@ -112,7 +121,7 @@ describe('Pago', () => {
             let validRequestAlias;
             beforeAll(async () => {
                 validRequestTarjeta = await request(app).post(`/pedidos/${pedidoID}/pagar`).send(validBodyPago);
-                validRequestAlias = await request(app).post(`/pedidos/${pedidoID}/pagar`).send(validBodyPagoBilleteraVirtual);
+                validRequestAlias = await request(app).post(`/pedidos/${pedido2ID}/pagar`).send(validBodyPagoBilleteraVirtual);
             });
 
             afterAll(async () => {

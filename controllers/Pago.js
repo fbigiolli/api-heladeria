@@ -9,9 +9,10 @@ module.exports.pedidosPedidoIdPagarPOST = function pedidosPedidoIdPagarPOST (req
       res.status(202).send(response);
     })
     .catch(function (error) {
-      if (error.message === 'Hubo un error al validar los datos de pago.') {
+      if (error.message === 'Hubo un error al validar los datos de pago.' || error.message === 'Ya existe un pago asociado al pedido'){
         res.status(400).send(error.message);
-      } else {
+      } 
+      else {
         res.status(404).send(error.message);
       }
     });

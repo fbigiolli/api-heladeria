@@ -29,8 +29,6 @@ exports.pedidosPOST = async function(body) {
 };
 
 
-
-
 /**
  * Ver un pedido particular
  *

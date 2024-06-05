@@ -18,10 +18,12 @@ const noSeConocePedidoErrorDescription = 'No se conoce un pedido con tal id.';
 exports.pedidosPedidoIdPagarPOST = async function(body, pedidoId) {
   
   validateMongoID(pedidoId, noSeConocePedidoErrorDescription);
-
   validateRequestBodyPago(body);
 
-  // CHECK QUE NO HAYA YA UN PAGO ASOCIADO !!
+  const existingPagoAsociado = await collection.findOne({idPedidoAsociado: pedidoId})
+  if (existingPagoAsociado) {
+    throw new Error('Ya existe un pago asociado al pedido')
+  };
   // habría que efectuar el pago antes de mandar a la db pago en proceso, para ver si tenemos que rechazarlo de arranque
 
   // almacenar los datos? o cambiar?
